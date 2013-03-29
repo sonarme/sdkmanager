@@ -193,7 +193,13 @@
             <version>1.9.1</version>
             <scope>test</scope>
         </dependency>
-
+        <!-- for ReflectionAssert -->
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-core</artifactId>
+            <version>3.3</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
     <repositories>

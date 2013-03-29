@@ -3,6 +3,7 @@ package me.sonar.sdkmanager.model
 import me.sonar.sdkmanager.core.Config
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type
+import beans.BeanProperty
 
 case class SyncRequest(var clientVersion: Int) {
     def this() = this(-1)
@@ -27,8 +28,11 @@ case class MessageAction(text: String, url: Option[String] = None, viewLabel: Op
     new Type(name = "sta", value = classOf[StaticGeoFence])
 ))
 abstract class Trigger {
+    @BeanProperty
     var id: String = _
+    @BeanProperty
     var publish: Boolean = _
+    @BeanProperty
     var processRole: Boolean = _
 }
 
