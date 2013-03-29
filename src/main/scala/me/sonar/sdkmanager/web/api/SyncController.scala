@@ -19,6 +19,19 @@ class SyncController extends Logging {
     @ResponseBody
     def ping(): String = ""
 
+    @RequestMapping(value = Array("/save"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def save() {
+        val fence = StaticGeoFence(lat = 40.7453940, lng = -73.9838360, radius = 800)
+        fence.id = "testfence"
+        fence.processRole = true
+        fence.publish = true
+        campaignService.save(Campaign(id = "test", appId = "testApp", triggers = Seq(
+            fence),
+            rule = Rule(actions = Seq(
+                MessageAction(text = "Hello")))))
+    }
+
     @RequestMapping(value = Array("/sync"), method = Array(RequestMethod.POST))
     @ResponseBody
     def sync(@RequestHeader("X-Sonar-ApiKey") apiKey: String, @RequestBody syncRequest: SyncRequest): SyncResponse = {
