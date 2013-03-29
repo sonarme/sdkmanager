@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/spring/root-context.xml</param-value>
+    </context-param>
+
+    <!-- Creates the Spring Container shared by all Servlets and Filters -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Processes application requests -->
+    <servlet>
+        <servlet-name>appServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/spring/servlet-context.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>appServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!-- see http://stackoverflow.com/questions/138948/how-to-get-utf-8-working-in-java-webapps -->
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- rewrite EC2 proxy IP -->
+    <filter>
+        <filter-name>RemoteIpFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.RemoteIpFilter</filter-class>
+
+        <init-param>
+            <param-name>remoteIpHeader</param-name>
+            <param-value>x-forwarded-for</param-value>
+        </init-param>
+        <init-param>
+            <param-name>remoteIpProxiesHeader</param-name>
+            <param-value>x-forwarded-by</param-value>
+        </init-param>
+        <init-param>
+            <param-name>protocolHeader</param-name>
+            <param-value>x-forwarded-proto</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>RemoteIpFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <!-- add request id to MDC before it gets logged -->
+    <filter>
+        <filter-name>mdcInsertingServletFilter</filter-name>
+        <filter-class>me.sonar.sdkmanager.core.MDCInsertingServletFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>mdcInsertingServletFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+    <!-- request logging -->
+    <filter>
+        <filter-name>requestLoggingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CommonsRequestLoggingFilter</filter-class>
+        <init-param>
+            <param-name>includeQueryString</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>includeClientInfo</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>requestLoggingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+    <!-- gzip compression -->
+    <filter>
+        <filter-name>PJLFilter</filter-name>
+        <filter-class>com.planetj.servlet.filter.compression.CompressingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>PJLFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
