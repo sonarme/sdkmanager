@@ -293,7 +293,7 @@
                         <artifactId>beanstalk-maven-plugin</artifactId>
                         <version>0.2.7-RC5</version>
                         <configuration>
-                            <applicationName>sdkmanager</applicationName>
+                            <applicationName>sdk-manager</applicationName>
                             <s3Bucket>elasticbeanstalk-us-east-1-561067768878</s3Bucket>
                             <s3Key>${project.build.finalName}-${maven.build.timestamp}.war</s3Key>
                             <verbose>true</verbose>
