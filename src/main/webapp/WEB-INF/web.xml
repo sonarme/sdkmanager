@@ -16,17 +16,17 @@
 
     <!-- Processes application requests -->
     <servlet>
-        <servlet-name>appServlet</servlet-name>
+        <servlet-name>apiServlet</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/spring/servlet-context.xml</param-value>
+            <param-value>/WEB-INF/spring/api-context.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>appServlet</servlet-name>
+        <servlet-name>apiServlet</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
@@ -71,7 +71,7 @@
     <!-- add request id to MDC before it gets logged -->
     <filter>
         <filter-name>mdcInsertingServletFilter</filter-name>
-        <filter-class>me.sonar.sdkmanager.core.MDCInsertingServletFilter</filter-class>
+        <filter-class>me.sonar.sdkmanager.web.MDCInsertingServletFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>mdcInsertingServletFilter</filter-name>

@@ -1,4 +1,4 @@
-package me.sonar.sdkmanager.core
+package me.sonar.sdkmanager.web.api
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, PropertyNamingStrategy, ObjectMapper}
 import com.fasterxml.jackson.datatype.joda.JodaModule

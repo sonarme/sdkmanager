@@ -1,4 +1,4 @@
-package me.sonar.sdkmanager.core
+package me.sonar.sdkmanager.web
 
 import javax.servlet.Filter
 import javax.servlet.FilterChain
@@ -6,7 +6,7 @@ import javax.servlet.FilterConfig
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import org.slf4j.MDC
-import ScalaGoodies._
+import me.sonar.sdkmanager.core.ScalaGoodies._
 
 /**
  * A servlet filter that inserts various values retrieved from the incoming http

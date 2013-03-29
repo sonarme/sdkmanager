@@ -16,7 +16,7 @@
     <!-- Scans the classpath for annotated components that will be auto-registered as
     	Spring beans. By default, the Spring-provided @Component, @Repository,
     	@Service, and @Controller stereotypes will be detected. -->
-    <context:component-scan base-package="me.sonar.sdkmanager.controllers"/>
+    <context:component-scan base-package="me.sonar.sdkmanager.web.api"/>
 
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="false">
@@ -26,7 +26,7 @@
         </mvc:message-converters>
     </mvc:annotation-driven>
 
-    <bean id="restObjectMapper" class="me.sonar.sdkmanager.core.RestObjectMapper"/>
+    <bean id="restObjectMapper" class="me.sonar.sdkmanager.web.api.RestObjectMapper"/>
 
 
 </beans>

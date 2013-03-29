@@ -10,9 +10,9 @@ case class SyncRequest(var clientVersion: Int) {
 
 case class SyncResponse(apiVersion: Int = Config.ApiVersion, campaigns: Iterable[Campaign])
 
-case class Campaign(id: String, triggers: Iterable[Trigger], rule: Rule)
+case class Campaign(id: String, appId: String, triggers: Seq[Trigger], rule: Rule)
 
-case class Rule(actions: Iterable[Action])
+case class Rule(actions: Seq[Action])
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(Array(

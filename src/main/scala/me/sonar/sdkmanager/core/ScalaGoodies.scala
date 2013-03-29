@@ -1,11 +1,9 @@
 package me.sonar.sdkmanager.core
 
 import collection.IterableLike
-import java.util.UUID
-import java.nio.ByteBuffer
 import java.security.SecureRandom
 import reflect.NameTransformer
-import org.apache.commons.codec.binary.{StringUtils, Base64}
+import org.apache.commons.codec.binary.Base64
 import org.joda.time.{DateTimeZone, DateTime}
 import collection.generic.CanBuildFrom
 
