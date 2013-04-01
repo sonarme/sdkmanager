@@ -36,4 +36,4 @@ abstract class Trigger {
     var processRole: Boolean = _
 }
 
-case class StaticGeoFence(lat: Double, lng: Double, radius: Float) extends Trigger
+case class StaticGeoFence(lat: Double, lng: Double, radius: Float, entering: Boolean) extends Trigger

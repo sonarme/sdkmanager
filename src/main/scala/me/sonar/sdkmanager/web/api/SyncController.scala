@@ -22,7 +22,7 @@ class SyncController extends Logging {
     @RequestMapping(value = Array("/save"), method = Array(RequestMethod.POST))
     @ResponseBody
     def save() {
-        val fence = StaticGeoFence(lat = 40.7453940, lng = -73.9838360, radius = 800)
+        val fence = StaticGeoFence(lat = 40.7453940, lng = -73.9838360, radius = 800, entering = true)
         fence.id = "testfence"
         fence.processRole = true
         fence.publish = true
