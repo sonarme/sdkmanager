@@ -1,9 +1,10 @@
 package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
-import me.sonar.sdkmanager.model.{AppCampaign, AppCampaignDao, Campaign}
 import javax.inject.Inject
 import me.sonar.sdkmanager.web.api.RestObjectMapper
+import me.sonar.sdkmanager.model.api.Campaign
+import me.sonar.sdkmanager.model.db.{AppCampaignDao, AppCampaign}
 
 @Service
 class CampaignService {

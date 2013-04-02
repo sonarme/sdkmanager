@@ -22,11 +22,10 @@
     <!-- Mongo Configuration -->
     <mongo:db-factory id="mongoDbFactory" dbname="${mongo.db.name}" mongo-ref="mongo"
                       username="${mongo.username}" password="${mongo.password}"/>
+
     <bean id="mongoMappingContext" class="org.springframework.data.mongodb.core.mapping.MongoMappingContext"/>
     <bean class="org.springframework.data.mongodb.core.MongoTemplate">
         <constructor-arg ref="mongoDbFactory"/>
-        <property name="writeConcern" value="NORMAL"/>
-        <property name="writeResultChecking" value="EXCEPTION"/>
         <!-- avoid writing the type information into mongo unless it's annotated -->
         <constructor-arg>
             <bean class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
@@ -45,8 +44,20 @@
                         </constructor-arg>
                     </bean>
                 </property>
+                <property name="customConversions">
+                    <bean class="org.springframework.data.mongodb.core.convert.CustomConversions">
+                        <constructor-arg>
+                            <list>
+                                <bean class="me.sonar.sdkmanager.core.DateTimeToDateConverter"/>
+                                <bean class="me.sonar.sdkmanager.core.DateToDateTimeConverter"/>
+                            </list>
+                        </constructor-arg>
+                    </bean>
+                </property>
             </bean>
         </constructor-arg>
+        <property name="writeConcern" value="NORMAL"/>
+        <property name="writeResultChecking" value="EXCEPTION"/>
     </bean>
     <mongo:mongo id="mongo" host="${mongo.host}" port="${mongo.port}" replica-set="${mongo.replicaSet}">
         <!-- see http://stackoverflow.com/questions/6520439/how-to-configure-mongodb-java-driver-mongooptions-for-production-use -->

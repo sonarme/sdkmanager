@@ -1,10 +1,11 @@
-package me.sonar.sdkmanager.model
+package me.sonar.sdkmanager.model.db
 
 import org.springframework.stereotype.Repository
 import org.springframework.data.mongodb.core.mapping.Document
-import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.query.Query._
 import org.springframework.data.mongodb.core.query.Criteria._
+import org.joda.time.DateTime
+import me.sonar.sdkmanager.core.SimpleMongoRepository
 
 @Document(collection = "sdk_apps")
 class App {
@@ -25,3 +26,18 @@ case class AppCampaign(
 class AppCampaignDao extends SimpleMongoRepository[AppCampaign] {
     def findByAppId(appId: String) = find(query(where("appId") is appId))
 }
+
+
+@Document(collection = "sdk_geofence_events")
+case class GeofenceEvent(
+                                var id: String,
+                                var platform: String,
+                                var deviceId: String,
+                                var geofenceId: String,
+                                var lat: Double,
+                                var lng: Double,
+                                var entering: DateTime,
+                                var exiting: DateTime)
+
+@Repository
+class GeofenceEventDao extends SimpleMongoRepository[GeofenceEvent]

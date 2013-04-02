@@ -52,7 +52,7 @@ class ReflectionEqualizer(val actual: AnyRef) {
      * @param expected the expected object
      * @return difference
      */
-    def lenientEquals(expected: AnyRef) = reflectionEquals(expected, LENIENT_ORDER, IGNORE_DEFAULTS)
+    def lenientEquals(expected: AnyRef) = reflectionEquals(expected, LENIENT_ORDER, LENIENT_DATES, IGNORE_DEFAULTS)
 
     /**
      * Asserts that two objects are equal. Reflection is used to compare all fields of these values.
