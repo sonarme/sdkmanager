@@ -21,6 +21,8 @@ case class GeofenceEvent(var geofenceId: String, var lat: Double, var lng: Doubl
 abstract class PublicEvent {
     @BeanProperty
     var id: String = _
+    @BeanProperty
+    var appId: String = _
 }
 
 case class SyncResponse(apiVersion: Int = Config.ApiVersion, campaigns: Seq[Campaign])

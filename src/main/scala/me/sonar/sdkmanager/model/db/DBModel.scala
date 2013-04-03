@@ -31,6 +31,7 @@ class AppCampaignDao extends SimpleMongoRepository[AppCampaign] {
 @Document(collection = "sdk_geofence_events")
 case class GeofenceEvent(
                                 var id: String,
+                                var appId: String,
                                 var platform: String,
                                 var deviceId: String,
                                 var geofenceId: String,
