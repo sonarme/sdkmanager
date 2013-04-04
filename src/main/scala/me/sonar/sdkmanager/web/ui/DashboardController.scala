@@ -51,9 +51,9 @@ case class CSVWrapper(geofenceId: String, dwellTimes: Option[CountStats], visits
         Seq(("Geofence", () => geofenceId),
             ("Visits total", () => visitsPerHourOfDay.values.sum.toString),
             ("Visitors total", () => visitorsPerHourOfDay.values.sum.toString),
-            ("Dwell Time in min Min", () => dwellTimes.map(_.min / 1000 / 60).mkString),
-            ("Dwell Time in min Avg", () => dwellTimes.map(_.avg / 1000 / 60).mkString),
-            ("Dwell Time in min Max", () => dwellTimes.map(_.max / 1000 / 60).mkString),
+            ("Dwell Time(m) Min", () => dwellTimes.map(_.min / 1000 / 60).mkString),
+            ("Dwell Time(m) Avg", () => dwellTimes.map(_.avg / 1000 / 60).mkString),
+            ("Dwell Time(m) Max", () => dwellTimes.map(_.max / 1000 / 60).mkString),
             ("Visits/Visitor Min", () => visitsPerVisitor.map(_.min).mkString),
             ("Visits/Visitor Avg", () => visitsPerVisitor.map(_.avg).mkString),
             ("Visits/Visitor Max", () => visitsPerVisitor.map(_.max).mkString)
