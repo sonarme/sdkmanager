@@ -27,7 +27,22 @@
 
     <servlet-mapping>
         <servlet-name>apiServlet</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>uiServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring/ui-context.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>uiServlet</servlet-name>
+        <url-pattern>/ui/*</url-pattern>
     </servlet-mapping>
 
     <!-- see http://stackoverflow.com/questions/138948/how-to-get-utf-8-working-in-java-webapps -->

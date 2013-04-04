@@ -14,7 +14,10 @@ class App {
 }
 
 @Repository
-class AppDao extends SimpleMongoRepository[App]
+class AppDao extends SimpleMongoRepository[App] {
+    def findByApiKey(apiKey: String) = find(query(where("apiKey") is apiKey)).headOption
+}
+
 
 @Document(collection = "sdk_campaigns")
 case class AppCampaign(

@@ -22,11 +22,7 @@ class SyncServiceTest extends SpringComponentTest {
                     e.id = count.toString
                     count += 1
             }
-            events.foreach {
-                e =>
-                    e.appId = "testApp"
-            }
-            service.save("android", "dev1", events)
+            service.save("android", "dev1", "testApp", events)
         }
 
 
@@ -38,15 +34,11 @@ class SyncServiceTest extends SpringComponentTest {
                     e.id = count.toString
                     count += 1
             }
-            events.foreach {
-                e =>
-                    e.appId = "testApp"
-            }
-            service.save("android", "dev2", events)
+            service.save("android", "dev2", "testApp", events)
         }
 
         val aggregates = service.aggregateDwellTime("testApp")
-        assert(aggregates lenientEquals (Map("gf1" -> Seq(DurationStats(1.hour.toDuration, 2.hours.toDuration, 100.minutes.toDuration)))))
+        assert(aggregates lenientEquals (Map("gf1" -> Seq(CountStats(1.hour.millis, 2.hours.millis, 100.minutes.millis)))))
     }
 
 }

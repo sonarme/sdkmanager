@@ -15,23 +15,23 @@ class SyncService {
     var geofenceEventDao: GeofenceEventDao = _
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{      $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{       $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { platform: "$platform", deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
-    val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
+    val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
     val dwellTime = JSON.parse( """{ $project : { _id: 1, geofenceId: 1, dwellTime: { $subtract: [ "$exiting", "$entering" ] } }}""").asInstanceOf[BasicDBObject]
     val dwellTimeAvg = JSON.parse( """{ $group : { _id : "$geofenceId", dwellTimeMin : { $min : "$dwellTime" }, dwellTimeMax : { $max : "$dwellTime" }, dwellTimeAvg : { $avg : "$dwellTime" } } }""").asInstanceOf[BasicDBObject]
     val visitors = JSON.parse( """{ $group : { _id : { platform: "$platform", deviceId: "$deviceId", geofenceId: "$geofenceId", hourOfDay: { $hour : "$entering" } } }}""").asInstanceOf[BasicDBObject]
     val visitorsPerHourOfDay = JSON.parse( """{ $group : { _id : { geofenceId: "$_id.geofenceId", hourOfDay: "$_id.hourOfDay"  } , "visitorsPerHourOfDay" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerHourOfDay = JSON.parse( """{ $group : { _id : { geofenceId: "$geofenceId", hourOfDay: { $hour : "$entering" } } , "visitsPerHourOfDay" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
 
-    def save(platform: String, deviceId: String, events: Iterable[api.PublicEvent]) = {
+    def save(platform: String, deviceId: String, appId: String, events: Iterable[api.PublicEvent]) = {
         val geofenceEvents = events.collect {
             case ge: api.GeofenceEvent => ge
         }
         geofenceEventDao.saveMultiple(geofenceEvents.map {
             ge =>
-                db.GeofenceEvent(id = ge.id, appId = ge.appId, platform = platform, deviceId = deviceId, geofenceId = ge.geofenceId, lat = ge.lat, lng = ge.lng, entering = ge.entering.orNull, exiting = ge.exiting.orNull)
+                db.GeofenceEvent(id = ge.id, appId = appId, platform = platform, deviceId = deviceId, geofenceId = ge.geofenceId, lat = ge.lat, lng = ge.lng, entering = ge.entering.orNull, exiting = ge.exiting.orNull)
         })
 
     }
@@ -51,11 +51,11 @@ class SyncService {
         def results(primaryKey: String, baseName: String) = it.map {
             g =>
                 val geofenceId = g("_id").toString
-                val min = g(baseName + "Min").asInstanceOf[java.lang.Long].longValue().toDuration
-                val max = g(baseName + "Max").asInstanceOf[java.lang.Long].longValue().toDuration
-                val avg = math.round(g(baseName + "Avg").asInstanceOf[java.lang.Double]).toDuration
-                (geofenceId, DurationStats(min = min, max = max, avg = avg))
-        }.groupBy(_._1).mapValues(_.map(_._2))
+                val min = g(baseName + "Min").asInstanceOf[java.lang.Number].longValue()
+                val max = g(baseName + "Max").asInstanceOf[java.lang.Number].longValue()
+                val avg = math.round(g(baseName + "Avg").asInstanceOf[java.lang.Double])
+                (geofenceId, CountStats(min = min, max = max, avg = avg))
+        }.groupBy(_._1).mapValues(_.head._2)
     }
 
     def aggregateVisitsPerHourOfDay(appId: String): Map[String, Map[Int, Int]] =
@@ -72,4 +72,4 @@ class SyncService {
 
 }
 
-case class DurationStats(min: Duration, max: Duration, avg: Duration)
+case class CountStats(min: Long, max: Long, avg: Long)

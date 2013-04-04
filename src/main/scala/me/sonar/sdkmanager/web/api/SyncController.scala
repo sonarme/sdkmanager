@@ -20,9 +20,12 @@ import javax.inject.Inject
 import me.sonar.sdkmanager.core.{SyncService, CampaignService}
 import org.scala_tools.time.Imports._
 import scala.Some
+import au.com.bytecode.opencsv.CSVWriter
+import java.io.OutputStreamWriter
+import java.nio.charset.Charset
+import org.springframework.http.{HttpOutputMessage, MediaType}
 
 @Controller
-@RequestMapping(value = Array("/"))
 class SyncController extends Logging {
     @Inject
     var campaignService: CampaignService = _
@@ -54,10 +57,12 @@ class SyncController extends Logging {
              @RequestHeader("X-Sonar-DeviceId") deviceId: String,
              @RequestBody syncRequest: SyncRequest): SyncResponse = {
         info("api: " + syncRequest.clientVersion)
-        syncService.save(platform, deviceId, syncRequest.events)
-        val campaigns = campaignService.findByAppId(apiKey)
+        val app = campaignService.findAppByApiKey(apiKey).getOrElse(throw new RuntimeException("App not found"))
+        syncService.save(platform, deviceId, app.id, syncRequest.events)
+        val campaigns = campaignService.findByAppId(app.id)
         SyncResponse(
             campaigns = campaigns)
     }
+
 
 }
