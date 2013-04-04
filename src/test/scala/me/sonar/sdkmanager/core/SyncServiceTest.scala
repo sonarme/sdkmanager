@@ -38,7 +38,7 @@ class SyncServiceTest extends SpringComponentTest {
         }
 
         val aggregates = service.aggregateDwellTime("testApp")
-        assert(aggregates lenientEquals (Map("gf1" -> Seq(CountStats(1.hour.millis, 2.hours.millis, 100.minutes.millis)))))
+        assert(aggregates lenientEquals (Map("gf1" -> CountStats(1.hour.millis, 2.hours.millis, 100.minutes.millis))))
     }
 
 }
