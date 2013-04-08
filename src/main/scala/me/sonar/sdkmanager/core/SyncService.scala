@@ -15,7 +15,7 @@ class SyncService {
     var geofenceEventDao: GeofenceEventDao = _
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{       $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{  $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { platform: "$platform", deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
@@ -48,13 +48,17 @@ class SyncService {
     }
 
     implicit class StatsAggregator(it: Iterable[Map[String, Any]]) {
-        def results(primaryKey: String, baseName: String) = it.map {
+        def results(primaryKey: String, baseName: String) = it.flatMap {
             g =>
-                val geofenceId = g("_id").toString
-                val min = g(baseName + "Min").asInstanceOf[java.lang.Number].longValue()
-                val max = g(baseName + "Max").asInstanceOf[java.lang.Number].longValue()
-                val avg = math.round(g(baseName + "Avg").asInstanceOf[java.lang.Double])
-                (geofenceId, CountStats(min = min, max = max, avg = avg))
+                val gMin = g(baseName + "Min")
+                if (gMin == null) None
+                else {
+                    val geofenceId = g("_id").toString
+                    val min = gMin.asInstanceOf[java.lang.Number].longValue()
+                    val max = g(baseName + "Max").asInstanceOf[java.lang.Number].longValue()
+                    val avg = math.round(g(baseName + "Avg").asInstanceOf[java.lang.Double])
+                    Some((geofenceId, CountStats(min = min, max = max, avg = avg)))
+                }
         }.groupBy(_._1).mapValues(_.head._2)
     }
 
