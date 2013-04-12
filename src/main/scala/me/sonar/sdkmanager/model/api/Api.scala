@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type
 import beans.BeanProperty
 import org.joda.time.DateTime
 
-case class SyncRequest(var clientVersion: Int, var events: Seq[PublicEvent] = Seq.empty[PublicEvent]) {
+case class SyncRequest(var clientVersion: Int, var events: Seq[PublicEvent] = Seq.empty[PublicEvent], var profileAttributes: Map[String, String] = Map.empty[String, String]) {
     def this() = this(-1)
 }
 

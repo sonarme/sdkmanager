@@ -21,7 +21,7 @@ class SimpleMongoRepository[T: Manifest] {
     def saveMultiple[S <: T](entities: Iterable[S]) = entities map save
 
     def findOne(id: String) =
-        Option(ObjectId.massageToObjectId(id)) flatMap (objectId => Option(mongoOperations.findById(objectId, clazz)))
+        Option(mongoOperations.findById(id, clazz))
 
     def aggregate(ops: DBObject*) =
         mongoOperations.execute(clazz, new CollectionCallback[Iterable[Map[String, Any]]] {

@@ -2,7 +2,7 @@ package me.sonar.sdkmanager.core
 
 import me.sonar.sdkmanager.SpringComponentTest
 import javax.inject.Inject
-import me.sonar.sdkmanager.model.api.GeofenceEvent
+import me.sonar.sdkmanager.model.api.{SyncRequest, GeofenceEvent}
 import org.scala_tools.time.Imports._
 
 class SyncServiceTest extends SpringComponentTest {
@@ -22,7 +22,7 @@ class SyncServiceTest extends SpringComponentTest {
                     e.id = count.toString
                     count += 1
             }
-            service.save("android", "dev1", "testApp-SyncServiceTest", events)
+            service.save("android", "dev1", "testApp-SyncServiceTest", SyncRequest(-1, events = events))
         }
 
 
@@ -34,7 +34,7 @@ class SyncServiceTest extends SpringComponentTest {
                     e.id = count.toString
                     count += 1
             }
-            service.save("android", "dev2", "testApp-SyncServiceTest", events)
+            service.save("android", "dev2", "testApp-SyncServiceTest", SyncRequest(-1, events = events))
         }
 
         val aggregates = service.aggregateDwellTime("testApp-SyncServiceTest")

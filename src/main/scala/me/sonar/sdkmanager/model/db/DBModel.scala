@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.query.Query._
 import org.springframework.data.mongodb.core.query.Criteria._
 import org.joda.time.DateTime
 import me.sonar.sdkmanager.core.SimpleMongoRepository
+import collection.JavaConversions._
 
 @Document(collection = "sdk_apps")
 class App {
@@ -16,6 +17,27 @@ class App {
 @Repository
 class AppDao extends SimpleMongoRepository[App] {
     def findByApiKey(apiKey: String) = find(query(where("apiKey") is apiKey)).headOption
+}
+
+@Document(collection = "sdk_profile_attributes")
+case class ProfileAttributes(
+                                    var appId: String,
+                                    var deviceId: String,
+                                    var attributes: java.util.Map[String, String]) {
+    var id = appId + "-" + deviceId
+
+}
+
+
+@Repository
+class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
+    def mergeUpsert(o: ProfileAttributes) = {
+        findOne(o.id).map(_.attributes) foreach {
+            existingMap =>
+                o.attributes = existingMap.toMap ++ o.attributes.toMap
+        }
+        save(o)
+    }
 }
 
 
