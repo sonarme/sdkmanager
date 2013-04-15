@@ -41,7 +41,8 @@ case class MessageAction(text: String, url: Option[String] = None, viewLabel: Op
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(Array(
-    new Type(name = "sta", value = classOf[StaticGeoFence])
+    new Type(name = "sta", value = classOf[StaticGeoFence]),
+    new Type(name = "dyn", value = classOf[DynamicGeoFence])
 ))
 abstract class Trigger {
     @BeanProperty
@@ -53,3 +54,5 @@ abstract class Trigger {
 }
 
 case class StaticGeoFence(lat: Double, lng: Double, radius: Float, entering: Boolean) extends Trigger
+
+case class DynamicGeoFence(inferredLocationType: String, radius: Float) extends Trigger
