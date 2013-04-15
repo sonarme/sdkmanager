@@ -193,6 +193,20 @@
             <version>2.3</version>
         </dependency>
 
+        <!-- Geohash -->
+        <dependency>
+            <groupId>ch.hsr</groupId>
+            <artifactId>ch.hsr.geohash</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+
+        <!-- Factual -->
+        <dependency>
+            <groupId>com.factual</groupId>
+            <artifactId>factual-java-driver</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.scalatest</groupId>

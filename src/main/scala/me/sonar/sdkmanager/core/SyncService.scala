@@ -10,6 +10,8 @@ import com.mongodb.util.JSON
 import org.scala_tools.time.Imports._
 import me.sonar.sdkmanager.model.api.SyncRequest
 import collection.JavaConversions._
+import ch.hsr.geohash.{WGS84Point, GeoHash}
+import com.factual.driver.{ReadResponse, Point, Geopulse, Factual}
 
 @Service
 class SyncService {
@@ -17,9 +19,11 @@ class SyncService {
     var geofenceEventDao: GeofenceEventDao = _
     @Inject
     var profileAttributesDao: ProfileAttributesDao = _
+    @Inject
+    var factual: Factual = _
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{    $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{      $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
@@ -40,8 +44,15 @@ class SyncService {
                     db.GeofenceEvent(id = ge.id, appId = appId, platform = platform, deviceId = compositeDeviceId, geofenceId = ge.geofenceId, lat = ge.lat, lng = ge.lng, entering = ge.entering.orNull, exiting = ge.exiting.orNull)
             })
         }
-        if (syncRequest.profileAttributes != null)
+        if (syncRequest.profileAttributes != null) {
+            // TODO: this should happen on another schedule, not on sync
+            syncRequest.profileAttributes.get("work") foreach {
+                workGeo => val centerPoint = GeoHash.fromGeohashString(workGeo).getBoundingBoxCenterPoint
+                val geopulse = factual.geopulse(new Geopulse(new Point(centerPoint.getLatitude, centerPoint.getLongitude)))
+                geopulse.getData
+            }
             profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, syncRequest.profileAttributes))
+        }
     }
 
     implicit class CountAggregator(it: Iterable[Map[String, Any]]) {

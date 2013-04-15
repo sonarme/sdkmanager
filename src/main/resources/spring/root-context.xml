@@ -69,4 +69,9 @@
                 slave-ok="true"
                 />
     </mongo:mongo>
+
+    <bean class="com.factual.driver.Factual">
+        <constructor-arg value="${factual.key}"/>
+        <constructor-arg value="${factual.secret}"/>
+    </bean>
 </beans>
