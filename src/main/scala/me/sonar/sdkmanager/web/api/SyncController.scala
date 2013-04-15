@@ -58,10 +58,10 @@ class SyncController extends Logging {
              @RequestBody syncRequest: SyncRequest): SyncResponse = {
         info("api: " + syncRequest.clientVersion)
         val app = campaignService.findAppByApiKey(apiKey).getOrElse(throw new RuntimeException("App not found"))
-        syncService.save(platform, deviceId, app.id, syncRequest)
+        val savedRequest: SyncRequest = syncService.save(platform, deviceId, app.id, syncRequest)
         val campaigns = campaignService.findByAppId(app.id)
         SyncResponse(
-            campaigns = campaigns)
+            campaigns = campaigns, profileAttributes = savedRequest.profileAttributes)
     }
 
 

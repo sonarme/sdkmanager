@@ -12,6 +12,7 @@ import me.sonar.sdkmanager.model.api.SyncRequest
 import collection.JavaConversions._
 import ch.hsr.geohash.{WGS84Point, GeoHash}
 import com.factual.driver.{ReadResponse, Point, Geopulse, Factual}
+import collection.JavaConversions._
 
 @Service
 class SyncService {
@@ -23,7 +24,7 @@ class SyncService {
     var factual: Factual = _
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{      $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{       $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
@@ -51,8 +52,10 @@ class SyncService {
                 val geopulse = factual.geopulse(new Geopulse(new Point(centerPoint.getLatitude, centerPoint.getLongitude)))
                 geopulse.getData
             }
-            profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, syncRequest.profileAttributes))
+            val mergedAttributes: ProfileAttributes = profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, syncRequest.profileAttributes))
+            syncRequest.profileAttributes = mergedAttributes.attributes.toMap
         }
+        syncRequest
     }
 
     implicit class CountAggregator(it: Iterable[Map[String, Any]]) {

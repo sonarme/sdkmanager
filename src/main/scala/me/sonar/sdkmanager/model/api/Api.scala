@@ -25,7 +25,7 @@ abstract class PublicEvent {
     var appId: String = _
 }
 
-case class SyncResponse(apiVersion: Int = Config.ApiVersion, campaigns: Seq[Campaign])
+case class SyncResponse(apiVersion: Int = Config.ApiVersion, campaigns: Seq[Campaign], profileAttributes: Map[String, String] = Map.empty[String, String])
 
 case class Campaign(id: String, appId: String, triggers: Seq[Trigger], rule: Rule)
 
