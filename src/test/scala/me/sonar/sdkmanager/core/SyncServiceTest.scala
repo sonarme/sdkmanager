@@ -4,6 +4,7 @@ import me.sonar.sdkmanager.SpringComponentTest
 import javax.inject.Inject
 import me.sonar.sdkmanager.model.api.{SyncRequest, GeofenceEvent}
 import org.scala_tools.time.Imports._
+import me.sonar.sdkmanager.model.db.ProfileAttribute
 
 class SyncServiceTest extends SpringComponentTest {
     @Inject
@@ -22,7 +23,7 @@ class SyncServiceTest extends SpringComponentTest {
                     e.id = count.toString
                     count += 1
             }
-            service.save("android", "dev1", "testApp-SyncServiceTest", SyncRequest(-1, events = events))
+            service.save("android", "dev1", "testApp-SyncServiceTest", SyncRequest(-1, events = events, profileAttributes = Seq(ProfileAttribute(key = "testAttribute", value = "testValue", probability = 1.0, lastModified = new java.util.Date))))
         }
 
 
