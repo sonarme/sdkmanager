@@ -22,7 +22,7 @@ class AppDao extends SimpleMongoRepository[App] {
 }
 
 case class ProfileAttribute(
-                                   var key: String, var value: String, var probability: Double, var lastModified: Date
+                                   var key: String, var value: String, var probability: Double = 1, var lastModified: Date = new Date
                                    )
 
 @Document(collection = "sdk_profile_attributes")
@@ -78,7 +78,7 @@ class GeofenceEventDao extends SimpleMongoRepository[GeofenceEvent]
 @Document(collection = "sdk_factual_gepulse")
 case class FactualGeopulse(
                                   var id: String,
-                                  var demographics: java.util.Map[String, Object])
+                                  var response: String)
 
 @Repository
 class FactualGeopulseDao extends SimpleMongoRepository[FactualGeopulse]

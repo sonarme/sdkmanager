@@ -2,7 +2,7 @@ package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
 import javax.inject.Inject
-import me.sonar.sdkmanager.model.db.{ProfileAttributes, ProfileAttributesDao, GeofenceEventDao}
+import me.sonar.sdkmanager.model.db.{ProfileAttribute, ProfileAttributes, ProfileAttributesDao, GeofenceEventDao}
 import me.sonar.sdkmanager.model._
 import com.mongodb.{DBObject, BasicDBObject}
 import org.bson.BasicBSONDecoder
@@ -24,7 +24,7 @@ class SyncService {
     var factualService: FactualService = _
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{         $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{           $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
@@ -47,12 +47,12 @@ class SyncService {
         }
         if (syncRequest.profileAttributes != null) {
             // TODO: this should happen on another schedule, not on sync
-            /*syncRequest.profileAttributes.get("work") foreach {
-
-                val geopulse = factualService.getFactualData(workGeo)
-                geopulse.getData
-            }*/
-            val mergedAttributes: ProfileAttributes = profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, syncRequest.profileAttributes))
+            val factualData = syncRequest.profileAttributes.find(_.key == "work") match {
+                case Some(profileAttribute) =>
+                    factualService.getFactualData(profileAttribute.value)
+                case _ => Seq.empty[ProfileAttribute]
+            }
+            val mergedAttributes: ProfileAttributes = profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, syncRequest.profileAttributes.toSeq ++ factualData))
             syncRequest.profileAttributes = mergedAttributes.attributes
         }
         syncRequest
