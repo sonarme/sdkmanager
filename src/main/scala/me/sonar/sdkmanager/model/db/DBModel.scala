@@ -75,7 +75,7 @@ case class GeofenceEvent(
 class GeofenceEventDao extends SimpleMongoRepository[GeofenceEvent]
 
 
-@Document(collection = "sdk_factual_gepulse")
+@Document(collection = "sdk_factual_geopulse")
 case class FactualGeopulse(
                                   var id: String,
                                   var response: String)
