@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.query.Criteria._
 import org.joda.time.DateTime
 import me.sonar.sdkmanager.core.SimpleMongoRepository
 import collection.JavaConversions._
+import java.util.Date
+import me.sonar.sdkmanager.core.ScalaGoodies._
 
 @Document(collection = "sdk_apps")
 class App {
@@ -19,11 +21,15 @@ class AppDao extends SimpleMongoRepository[App] {
     def findByApiKey(apiKey: String) = find(query(where("apiKey") is apiKey)).headOption
 }
 
+case class ProfileAttribute(
+                                   var key: String, var value: String, var probability: Double, var lastModified: Date
+                                   )
+
 @Document(collection = "sdk_profile_attributes")
 case class ProfileAttributes(
                                     var appId: String,
                                     var deviceId: String,
-                                    var attributes: java.util.Map[String, String]) {
+                                    var attributes: java.util.List[ProfileAttribute]) {
     var id = appId + "-" + deviceId
 
 }
@@ -33,8 +39,8 @@ case class ProfileAttributes(
 class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
     def mergeUpsert(o: ProfileAttributes) = {
         findOne(o.id).map(_.attributes) foreach {
-            existingMap =>
-                o.attributes = existingMap.toMap ++ o.attributes.toMap
+            existing =>
+                o.attributes = (o.attributes ++ existing).distinctBy(_.key)
         }
         save(o)
     }

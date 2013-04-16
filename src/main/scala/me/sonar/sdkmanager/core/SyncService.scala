@@ -24,7 +24,7 @@ class SyncService {
     var factualService: FactualService = _
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{        $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{         $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
@@ -53,7 +53,7 @@ class SyncService {
                 geopulse.getData
             }*/
             val mergedAttributes: ProfileAttributes = profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, syncRequest.profileAttributes))
-            syncRequest.profileAttributes = mergedAttributes.attributes.toMap
+            syncRequest.profileAttributes = mergedAttributes.attributes
         }
         syncRequest
     }
