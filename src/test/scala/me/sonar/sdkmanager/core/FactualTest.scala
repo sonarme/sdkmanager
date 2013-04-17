@@ -14,7 +14,7 @@ class FactualTest extends SpringComponentTest {
 
     "factual" should "return data" in {
 
-        val data = factualService.getFactualData("dr5x")
+        val data = factualService.getFactualData("dr5rsx47")
 
         assert(data != null)
     }

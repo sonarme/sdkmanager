@@ -66,18 +66,23 @@ class FactualService extends Segmentation {
         val genderDistribution = Seq("male", "female").map {
             case e => e -> (demographics.get("age_and_sex").get(e).asDouble() / 100.0)
         }.toMap[String, Double]
-        val (education, educationProbability) = genderDistribution flatMap {
-            case (g, prob) => levelAttained.get(g).fieldMap.mapValues(_ / 100.0 * prob)
+        val educationMap = genderDistribution.keys flatMap {
+            g => levelAttained.get(g).fieldMap
         } groupBy (_._1) mapValues (
                 _.map(_._2).sum
-                ) maxBy (_._2)
-        val (age, ageProbability) = genderDistribution flatMap {
-            case (g, prob) => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
-                case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability / 100.0 * prob
+                )
+        val educationTotal = educationMap.values.sum
+        val (education, educationProbability) = educationMap mapValues (_ / educationTotal) maxBy (_._2)
+        val ageTranslated = genderDistribution.keys flatMap {
+            g => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
+                case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability
             }
-        } groupBy (_._1) mapValues (
-                x => x.map(_._2).sum / x.size
-                ) maxBy (_._2)
+        }
+        val ageMap = ageTranslated.groupBy(_._1).mapValues(
+            _.map(_._2).sum
+        )
+        val totalAgeValues = ageMap.values.sum
+        val (age, ageProbability) = ageMap.mapValues(_ / totalAgeValues) maxBy (_._2)
         val (gender, genderProbability) = genderDistribution.maxBy(_._2)
         val medianIncome = demographics.get("income").get("median_income").get("amount").asInt()
         val incomeBucket = createSegments(medianIncome, incomeBuckets, None).head.name
