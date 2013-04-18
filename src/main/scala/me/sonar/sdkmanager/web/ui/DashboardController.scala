@@ -40,7 +40,7 @@ class DashboardController {
                     if (first)
                         writer.writeNext(wrapper.keys.toArray ++ attributeKeys.map(x => x._1 + " " + x._2))
                     val attributesForGf = attributes.getOrElse(gf, Map.empty)
-                    val avgs = attributeKeys.map(x => attributesForGf.get(x).map(_.avg.toString).orNull)
+                    val avgs = attributeKeys.map(x => attributesForGf.get(x).map(_.toString).orNull)
                     writer.writeNext(wrapper.values.toArray ++ avgs)
                     first = false
             }

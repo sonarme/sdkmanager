@@ -29,7 +29,7 @@ class SyncService {
 
     val decoder = new BasicBSONDecoder
 
-    def appIdFilter(appId: String) = JSON.parse( s"""{              $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
+    def appIdFilter(appId: String) = JSON.parse( s"""{                 $$match : { appId : "$appId" }}""").asInstanceOf[BasicDBObject]
 
     val visitsPerVisitor = JSON.parse( """{ $group : { _id : { deviceId: "$deviceId", geofenceId: "$geofenceId" } , "visitsPerVisitor" : { $sum : 1}}}""").asInstanceOf[BasicDBObject]
     val visitsPerVisitorAvg = JSON.parse( """{ $group : { _id : "$_id.geofenceId", "visitsPerVisitorMin" : { $min : "$visitsPerVisitor"}, "visitsPerVisitorMax" : { $max : "$visitsPerVisitor"}, "visitsPerVisitorAvg" : { $avg : "$visitsPerVisitor"}}}""").asInstanceOf[BasicDBObject]
@@ -42,7 +42,7 @@ class SyncService {
     val visitorsGeofencesProject = JSON.parse( """{ $project : { geofenceIds: "$value.geofenceIds", attributes: "$value.attributes" } }""").asInstanceOf[BasicDBObject]
     val visitorsGeofencesUnwind1 = JSON.parse( """{ $unwind : "$geofenceIds" }""").asInstanceOf[BasicDBObject]
     val visitorsGeofencesUnwind2 = JSON.parse( """{ $unwind : "$attributes" }""").asInstanceOf[BasicDBObject]
-    val visitorsGeofencesGroup = JSON.parse( """{ $group : { _id: { geofenceId: "$geofenceIds", attributeKey: "$attributes.key", attributeValue: "$attributes.value" }, "avg": { $avg: "$attributes.probability"} } }""").asInstanceOf[BasicDBObject]
+    val visitorsGeofencesGroup = JSON.parse( """{ $group : { _id: { geofenceId: "$geofenceIds", attributeKey: "$attributes.key", attributeValue: "$attributes.value" }, "weight": { $sum: "$attributes.probability"} } }""").asInstanceOf[BasicDBObject]
 
     def save(platform: String, deviceId: String, appId: String, syncRequest: SyncRequest) = {
         val compositeDeviceId = platform + "-" + deviceId
@@ -94,7 +94,7 @@ class SyncService {
         }.groupBy(_._1).mapValues(_.head._2)
     }
 
-    case class GeofenceAttribute(geofenceId: String, attributeKeyValue: (String, String), avg: Double)
+    case class GeofenceAttribute(geofenceId: String, attributeKeyValue: (String, String), weight: Double)
 
     def aggregateGeofenceData(appId: String) = {
         val tempName = "sdk_temp_aggregation_" + UUID.randomUUID().toString
@@ -104,21 +104,28 @@ class SyncService {
             profileAttributesDao.aggregateGeofences(appId, tempName)
             mongoOperations.execute(tempName, new CollectionCallback[Iterable[GeofenceAttribute]] {
                 def doInCollection(collection: DBCollection) = {
-                    collection.aggregate(visitorsGeofencesProject, visitorsGeofencesUnwind1, visitorsGeofencesUnwind2, visitorsGeofencesGroup).results.map {
+                    collection.aggregate(visitorsGeofencesProject, visitorsGeofencesUnwind1, visitorsGeofencesUnwind2, visitorsGeofencesGroup).results.flatMap {
                         dbo =>
                             val id = dbo.get("_id").asInstanceOf[DBObject]
                             val geofenceId = id.get("geofenceId").toString
                             val attributeKey = id.get("attributeKey").toString
                             val attributeValue = id.get("attributeValue").toString
-                            val avg = dbo.get("avg").asInstanceOf[Double]
-                            GeofenceAttribute(geofenceId, (attributeKey, attributeValue), avg)
+                            val weight = dbo.get("weight").asInstanceOf[Double]
+                            // TODO: hack
+                            if (attributeKey == "work" || attributeKey == "home") None
+                            else Some(GeofenceAttribute(geofenceId, (attributeKey, attributeValue), weight))
                     }
                 }
             })
         } finally {
             mongoOperations.dropCollection(tempName)
         }
-        result.groupBy(_.geofenceId).mapValues(_.groupBy(_.attributeKeyValue).mapValues(_.head))
+        // TODO: hacky
+        result.groupBy(_.geofenceId).mapValues {
+            x =>
+                val totals = x.groupBy(_.attributeKeyValue._1).mapValues(_.map(_.weight).sum)
+                x.groupBy(_.attributeKeyValue).mapValues(x => x.head.weight / totals(x.head.attributeKeyValue._1))
+        }
     }
 
     def aggregateVisitsPerHourOfDay(appId: String): Map[String, Map[Int, Int]] =
