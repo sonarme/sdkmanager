@@ -5,7 +5,8 @@ import org.springframework.data.mongodb.core.{CollectionCallback, MongoOperation
 import org.bson.types.ObjectId
 import collection.JavaConversions._
 import org.springframework.data.mongodb.core.query.Query
-import com.mongodb.{DBObject, AggregationOutput, BasicDBObject, DBCollection}
+import com.mongodb._
+import com.mongodb.util.JSON
 
 class SimpleMongoRepository[T: Manifest] {
     @Inject
@@ -33,6 +34,25 @@ class SimpleMongoRepository[T: Manifest] {
                 }
             }
         })
+
+    def mapReduce(query: String,
+                  map: String
+                  ,
+                  reduce: String
+                  ,
+                  finalizeOpt: Option[String],
+                  outputCollection: String
+                  ,
+                  `type`: MapReduceCommand.OutputType) = {
+        mongoOperations.execute(clazz, new CollectionCallback[MapReduceOutput] {
+            def doInCollection(collection: DBCollection) = {
+                val mrc = new MapReduceCommand(collection, map, reduce, outputCollection, `type`, JSON.parse(query).asInstanceOf[BasicDBObject])
+                finalizeOpt foreach mrc.setFinalize
+
+                collection.mapReduce(mrc)
+            }
+        })
+    }
 
     def find(query: Query) =
         mongoOperations.find(query, clazz).toSeq

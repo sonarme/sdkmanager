@@ -25,6 +25,8 @@ class DashboardController {
         val visitorsPerHourOfDay = syncService.aggregateVisitorsPerHourOfDay(appId)
         val visitsPerVisitor = syncService.aggregateVisitsPerVisitor(appId)
         val visitsPerHourOfDay = syncService.aggregateVisitsPerHourOfDay(appId)
+        val attributes = syncService.aggregateGeofenceData(appId)
+        val attributeKeys = attributes.values.flatMap(_.keySet).toArray.distinct.sorted
         val gfs = dwellTimes.keySet ++ visitorsPerHourOfDay.keySet ++ visitsPerVisitor.keySet ++ visitsPerHourOfDay.keySet
         response.setContentType(new MediaType("text", "csv", Charset.forName("utf-8")).toString)
         response.addHeader("Content-Disposition", """attachment; filename="stats.csv"""")
@@ -36,8 +38,10 @@ class DashboardController {
                     val wrapper = CSVWrapper(geofenceId = gf, dwellTimes = dwellTimes.get(gf), visitsPerVisitor.get(gf), visitorsPerHourOfDay = visitorsPerHourOfDay.getOrElse(gf, Map.empty[Int, Int]),
                         visitsPerHourOfDay = visitsPerHourOfDay.getOrElse(gf, Map.empty[Int, Int]))
                     if (first)
-                        writer.writeNext(wrapper.keys.toArray)
-                    writer.writeNext(wrapper.values.toArray)
+                        writer.writeNext(wrapper.keys.toArray ++ attributeKeys.map(x => x._1 + " " + x._2))
+                    val attributesForGf = attributes.getOrElse(gf, Map.empty)
+                    val avgs = attributeKeys.map(x => attributesForGf.get(x).map(_.avg.toString).orNull)
+                    writer.writeNext(wrapper.values.toArray ++ avgs)
                     first = false
             }
         } finally {

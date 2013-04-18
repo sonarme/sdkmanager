@@ -9,6 +9,7 @@ import me.sonar.sdkmanager.core.SimpleMongoRepository
 import collection.JavaConversions._
 import java.util.Date
 import me.sonar.sdkmanager.core.ScalaGoodies._
+import com.mongodb.MapReduceCommand
 
 @Document(collection = "sdk_apps")
 class App {
@@ -37,12 +38,40 @@ case class ProfileAttributes(
 
 @Repository
 class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
+    val aggregateMap = """function Map() {
+                         |
+                         |	emit(
+                         |		this.deviceId,					// how to group
+                         |		{attributes: this.attributes}	// associated data point (document)
+                         |	);
+                         |
+                         |}
+                         | """.stripMargin
+    val aggregateReduce = """function Reduce(key, values) {
+                            |
+                            |var result = {};
+                            |    values.forEach(function(value) {
+                            |        var field;
+                            |        for (field in value) {
+                            |            if (value.hasOwnProperty(field)) {
+                            |                result[field] = value[field];
+                            |            }
+                            |        }
+                            |    });
+                            |    return result;
+                            |
+                            |}""".stripMargin
+
     def mergeUpsert(o: ProfileAttributes) = {
         findOne(o.id).map(_.attributes) foreach {
             existing =>
                 o.attributes = (o.attributes ++ existing).distinctBy(_.key)
         }
         save(o)
+    }
+
+    def aggregateGeofences(appId: String, tempCollection: String) = {
+        mapReduce( s"""{appId:"$appId"}""", aggregateMap, aggregateReduce, None, tempCollection, MapReduceCommand.OutputType.REDUCE)
     }
 }
 
@@ -72,7 +101,42 @@ case class GeofenceEvent(
                                 var exiting: DateTime)
 
 @Repository
-class GeofenceEventDao extends SimpleMongoRepository[GeofenceEvent]
+class GeofenceEventDao extends SimpleMongoRepository[GeofenceEvent] {
+    val aggregateMap = """|function Map() {
+                         |	var geofenceIds = {}
+                         |	geofenceIds[this.geofenceId] = true;
+                         |	emit(
+                         |		this.deviceId,
+                         |		{geofenceIdsObj: geofenceIds}
+                         |	);
+                         |}""".stripMargin
+    val aggregateReduce = """
+                            |
+                            |function Reduce(key, values) {
+                            |
+                            |	var reduced = {geofenceIdsObj: {}}; // initialize a doc (same format as emitted value)
+                            |
+                            |	values.forEach(function(val) {
+                            |		for (var attrname in val.geofenceIdsObj) {
+                            |			reduced.geofenceIdsObj[attrname] = true;
+                            |		}
+                            |	});
+                            |	return reduced;
+                            |}
+                            | """.stripMargin
+    val aggregateFinalize = """function Finalize(key, reduced) {
+                              |	reduced.geofenceIds = [];
+                              |    for(var key in reduced.geofenceIdsObj){
+                              |      reduced.geofenceIds.push(key);
+                              |    }
+                              |	delete reduced.geofenceIdsObj;
+                              |	return reduced;
+                              |}""".stripMargin
+
+    def aggregateGeofences(appId: String, tempCollection: String) = {
+        mapReduce( s"""{appId:"$appId"}""", aggregateMap, aggregateReduce, Some(aggregateFinalize), tempCollection, MapReduceCommand.OutputType.REPLACE)
+    }
+}
 
 
 @Document(collection = "sdk_factual_geopulse")

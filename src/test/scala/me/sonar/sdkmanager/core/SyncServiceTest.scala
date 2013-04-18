@@ -39,6 +39,7 @@ class SyncServiceTest extends SpringComponentTest {
         }
 
         val aggregates = service.aggregateDwellTime("testApp-SyncServiceTest")
+        val geofences = service.aggregateGeofenceData("testApp")
         assert(aggregates lenientEquals (Map("gf1" -> CountStats(1.hour.millis, 2.hours.millis, 100.minutes.millis))))
     }
 
