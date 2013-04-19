@@ -17,8 +17,8 @@ class AppMetadataController extends Logging {
     @RequestMapping(value = Array("/appmeta"), method = Array(RequestMethod.POST))
     @ResponseBody
     def appmetas(@RequestHeader("X-Sonar-Platform") platform: Platform,
-                 @RequestBody ids: AppKeysDTO) = {
-        appMetadataService.getAppMetadatas(ids.keys, platform)
+                 @RequestBody appKeys: AppKeysDTO) = {
+        appMetadataService.getAppMetadatas(appKeys.keys, platform)
     }
 }
 
