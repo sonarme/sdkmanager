@@ -32,7 +32,9 @@ case class Campaign(id: String, appId: String, triggers: Seq[Trigger], rule: Rul
 
 case class Condition(predicate: Predicate)
 
-case class Rule(conditions: Seq[Condition], actions: Seq[Action])
+case class Frequency(timeWindowInMs: Long, count: Int)
+
+case class Rule(conditions: Seq[Condition], actions: Seq[Action], frequency: Frequency)
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(Array(
