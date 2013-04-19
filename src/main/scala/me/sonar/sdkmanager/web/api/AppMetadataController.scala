@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation._
 import scala.beans.BeanProperty
 import collection.JavaConversions._
 import me.sonar.sdkmanager.model.Platform
+import me.sonar.sdkmanager.model.api.AppMetadataRequest
 
 @Controller
 class AppMetadataController extends Logging {
@@ -17,9 +18,7 @@ class AppMetadataController extends Logging {
     @RequestMapping(value = Array("/appmeta"), method = Array(RequestMethod.POST))
     @ResponseBody
     def appmetas(@RequestHeader("X-Sonar-Platform") platform: Platform,
-                 @RequestBody appKeys: AppKeysDTO) = {
-        appMetadataService.getAppMetadatas(appKeys.keys, platform)
+                 @RequestBody appMetadataRequest: AppMetadataRequest) = {
+        appMetadataService.getAppMetadatas(appMetadataRequest.keys, platform)
     }
 }
-
-case class AppKeysDTO(@BeanProperty var keys: List[String])

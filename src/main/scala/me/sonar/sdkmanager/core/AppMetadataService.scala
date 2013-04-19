@@ -9,13 +9,14 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import me.sonar.sdkmanager.model.Platform
 import me.sonar.sdkmanager.model.Platform._
+import me.sonar.sdkmanager.model.api.AppMetadataResponse
 
 @Service
 class AppMetadataService {
     @Inject
     var appMetadataDao: AppMetadataDao = _
 
-    def getAppMetadatas(ids: Iterable[String], platform: Platform): Iterable[AppMetadata] = {
+    def getAppMetadatas(ids: Iterable[String], platform: Platform): AppMetadataResponse = {
         val appMetadatas = (ids map {
             id =>
                 platform match {
@@ -24,7 +25,7 @@ class AppMetadataService {
                     case _ => throw new RuntimeException("not implemented")
                 }
         }).flatten
-        appMetadatas
+        AppMetadataResponse(appMetadatas.toSeq)
     }
 
     private def fetchAppMetadata(id: String, platform: Platform) = {
