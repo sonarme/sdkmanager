@@ -12,6 +12,7 @@ class RestObjectMapper extends ObjectMapper {
     //jodaModule.addDeserializer[DateTime](classOf[DateTime], new DateTimeSecsDeserializer)
     //jodaModule.addSerializer[DateTime](classOf[DateTime], new DateTimeSecsSerializer)
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
     setSerializationInclusion(Include.NON_NULL)
     registerModule(DefaultScalaModule)
 }

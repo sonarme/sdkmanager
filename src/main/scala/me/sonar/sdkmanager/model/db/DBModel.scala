@@ -146,3 +146,13 @@ case class FactualGeopulse(
 
 @Repository
 class FactualGeopulseDao extends SimpleMongoRepository[FactualGeopulse]
+
+
+@Document(collection = "sdk_app_metadata")
+case class AppMetadata(
+                              var id: String,
+                              var platform: String,
+                              var category: String)
+
+@Repository
+class AppMetadataDao extends SimpleMongoRepository[AppMetadata]
