@@ -60,19 +60,19 @@ case class StaticGeoFence(lat: Double, lng: Double, radius: Float, entering: Boo
 
 case class DynamicGeoFence(inferredLocationType: String, radius: Float) extends Trigger
 
-case class Compare(`var`: String, op: String, value: String) extends Predicate
+case class ComparePredicate(`var`: String, op: String, value: String) extends Predicate
 
-case class Exists(predicates: Seq[Predicate]) extends Predicate
+case class OrPredicate(predicates: Seq[Predicate]) extends Predicate
 
-case class ForAll(predicates: Seq[Predicate]) extends Predicate
+case class AndPredicate(predicates: Seq[Predicate]) extends Predicate
 
-case class Not(predicate: Predicate) extends Predicate
+case class NotPredicate(predicate: Predicate) extends Predicate
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(Array(
-    new Type(name = "compare", value = classOf[Compare]),
-    new Type(name = "exists", value = classOf[Exists]),
-    new Type(name = "forall", value = classOf[ForAll]),
-    new Type(name = "not", value = classOf[Not])))
+    new Type(name = "cmp", value = classOf[ComparePredicate]),
+    new Type(name = "or", value = classOf[OrPredicate]),
+    new Type(name = "and", value = classOf[AndPredicate]),
+    new Type(name = "not", value = classOf[NotPredicate])))
 abstract class Predicate
 
