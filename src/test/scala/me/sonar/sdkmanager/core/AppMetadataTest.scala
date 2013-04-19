@@ -12,7 +12,7 @@ class AppMetadataTest extends SpringComponentTest {
     var appMetadataService: AppMetadataService = _
 
     "Google Play" should "return app metadata" in {
-        val appMetadataResponse = appMetadataService.getAppMetadatas(List("me.sonar.android", "org.wikipedia"), Platform.android)
+        val appMetadataResponse = appMetadataService.getAppMetadatas(List("me.sonar.android", "com.android.nfc"), Platform.android)
         Thread.sleep(5000)
         assert(appMetadataResponse.appMetadatas.size > 0)
     }
