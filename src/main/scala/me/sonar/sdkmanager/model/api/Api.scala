@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.annotation.JsonSubTypes._
 import beans.BeanProperty
 import org.joda.time.DateTime
-import me.sonar.sdkmanager.model.db.ProfileAttribute
+import me.sonar.sdkmanager.model.db.{AppMetadata, ProfileAttribute}
 
 case class SyncRequest(var clientVersion: Int, var events: Seq[PublicEvent] = Seq.empty[PublicEvent], var profileAttributes: Seq[ProfileAttribute] = Seq.empty[ProfileAttribute]) {
     def this() = this(-1)
@@ -27,6 +27,10 @@ abstract class PublicEvent {
 }
 
 case class SyncResponse(apiVersion: Int = Config.ApiVersion, campaigns: Seq[Campaign], profileAttributes: Seq[ProfileAttribute] = Seq.empty[ProfileAttribute])
+
+case class AppMetadataRequest(var keys: Seq[String])
+
+case class AppMetadataResponse(var appMetadatas: Seq[AppMetadata])
 
 case class Campaign(id: String, appId: String, triggers: Seq[Trigger], rule: Rule)
 
