@@ -2,7 +2,7 @@ package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
 import javax.inject.Inject
-import me.sonar.sdkmanager.model.db.{ProfileAttribute, ProfileAttributes, ProfileAttributesDao, GeofenceEventDao}
+import me.sonar.sdkmanager.model.db._
 import me.sonar.sdkmanager.model._
 import com.mongodb.{DBCollection, DBObject, BasicDBObject}
 import org.bson.BasicBSONDecoder
@@ -15,6 +15,11 @@ import com.factual.driver.{ReadResponse, Point, Geopulse, Factual}
 import collection.JavaConversions._
 import org.springframework.data.mongodb.core.{CollectionCallback, MongoOperations}
 import java.util.UUID
+import me.sonar.sdkmanager.core.CountStats
+import me.sonar.sdkmanager.model.api.SyncRequest
+import me.sonar.sdkmanager.model.db.ProfileAttributes
+import me.sonar.sdkmanager.model.db.ProfileAttribute
+import scala.Some
 
 @Service
 class SyncService {
@@ -26,6 +31,8 @@ class SyncService {
     var factualService: FactualService = _
     @Inject
     var mongoOperations: MongoOperations = _
+    @Inject
+    var appMetadataService: AppMetadataService = _
 
     val decoder = new BasicBSONDecoder
 
@@ -44,7 +51,7 @@ class SyncService {
     val visitorsGeofencesUnwind2 = JSON.parse( """{ $unwind : "$attributes" }""").asInstanceOf[BasicDBObject]
     val visitorsGeofencesGroup = JSON.parse( """{ $group : { _id: { geofenceId: "$geofenceIds", attributeKey: "$attributes.key", attributeValue: "$attributes.value" }, "weight": { $sum: "$attributes.probability"} } }""").asInstanceOf[BasicDBObject]
 
-    def save(platform: String, deviceId: String, appId: String, syncRequest: SyncRequest) = {
+    def save(platform: Platform, deviceId: String, appId: String, syncRequest: SyncRequest) = {
         val compositeDeviceId = platform + "-" + deviceId
         if (syncRequest.events != null) {
             val geofenceEvents = syncRequest.events.collect {
@@ -62,7 +69,15 @@ class SyncService {
                     factualService.getFactualData(profileAttribute.value)
                 case _ => Seq.empty[ProfileAttribute]
             }
-            val mergedAttributes: ProfileAttributes = profileAttributesDao.mergeUpsert(ProfileAttributes(appId = appId, deviceId = compositeDeviceId, factualData ++ syncRequest.profileAttributes.toSeq))
+            val appCategories = syncRequest.profileAttributes.find(_.key == "installed_apps") match {
+                case Some(profileAttribute) =>
+                    appMetadataService.getAppCategories(profileAttribute.value.split(","), platform)
+                case _ => Seq.empty[ProfileAttribute]
+            }
+
+            val profileAttributes = ProfileAttributes(appId = appId, deviceId = compositeDeviceId, factualData ++ appCategories ++ syncRequest.profileAttributes.toSeq)
+            profileAttributesDao.removeAttributesWithType(profileAttributes.id, "category")
+            val mergedAttributes: ProfileAttributes = profileAttributesDao.mergeUpsert(profileAttributes)
             syncRequest.profileAttributes = mergedAttributes.attributes
         }
         syncRequest
@@ -110,7 +125,7 @@ class SyncService {
                             val geofenceId = id.get("geofenceId").toString
                             val attributeKey = id.get("attributeKey").toString
                             val attributeValue = id.get("attributeValue").toString
-                            val weight = dbo.get("weight").asInstanceOf[Double]
+                            val weight = try { dbo.get("weight").asInstanceOf[Double] } catch { case c: ClassCastException => dbo.get("weight").asInstanceOf[Int]}
                             // TODO: hack
                             if (attributeKey == "work" || attributeKey == "home") None
                             else Some(GeofenceAttribute(geofenceId, (attributeKey, attributeValue), weight))

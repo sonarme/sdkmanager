@@ -39,7 +39,7 @@ class SyncController extends Logging {
     @RequestMapping(value = Array("/sync"), method = Array(RequestMethod.POST))
     @ResponseBody
     def sync(@RequestHeader("X-Sonar-ApiKey") apiKey: String,
-             @RequestHeader("X-Sonar-Platform") platform: String,
+             @RequestHeader("X-Sonar-Platform") platform: Platform,
              @RequestHeader("X-Sonar-DeviceId") deviceId: String,
              @RequestBody syncRequest: SyncRequest): SyncResponse = {
         info("api: " + syncRequest.clientVersion)
