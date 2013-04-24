@@ -28,10 +28,6 @@ abstract class PublicEvent {
 
 case class SyncResponse(apiVersion: Int = Config.ApiVersion, campaigns: Seq[Campaign], profileAttributes: Seq[ProfileAttribute] = Seq.empty[ProfileAttribute])
 
-case class AppMetadataRequest(var keys: Seq[String])
-
-case class AppMetadataResponse(var appMetadatas: Seq[AppMetadata])
-
 case class Campaign(id: String, appId: String, triggers: Seq[Trigger], rule: Rule)
 
 case class Condition(predicate: Predicate)

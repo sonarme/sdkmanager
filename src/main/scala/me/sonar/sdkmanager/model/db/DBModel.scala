@@ -26,8 +26,10 @@ class AppDao extends SimpleMongoRepository[App] {
 }
 
 case class ProfileAttribute(
-                                   var key: String, var value: String, var probability: Double = 1, var `type`: String = "none", var lastModified: Date = new Date
-                                   )
+                                   var value: String, var probability: Double = 1, var `type`: String = "none", var lastModified: Date = new Date
+                                   ) {
+    var id = `type` + "-" + value
+}
 
 @Document(collection = "sdk_profile_attributes")
 case class ProfileAttributes(
@@ -69,7 +71,7 @@ class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
     def mergeUpsert(o: ProfileAttributes) = {
         findOne(o.id).map(_.attributes) foreach {
             existing =>
-                o.attributes = (o.attributes ++ existing).distinctBy(_.key)
+                o.attributes = (o.attributes ++ existing).distinctBy(_.id)
         }
         save(o)
     }

@@ -28,7 +28,7 @@ class SyncServiceTest extends SpringComponentTest {
                     e.id = count.toString
                     count += 1
             }
-            service.save(Platform.android, "dev1", "testApp-SyncServiceTest", SyncRequest(-1, events = events, profileAttributes = Seq(ProfileAttribute(key = "testAttribute", value = "testValue", probability = 1.0, lastModified = new java.util.Date))))
+            service.save(Platform.android, "dev1", "testApp-SyncServiceTest", SyncRequest(-1, events = events, profileAttributes = Seq(ProfileAttribute(value = "testValue", probability = 1.0, `type` = "testType", lastModified = new java.util.Date))))
         }
 
 
@@ -49,7 +49,7 @@ class SyncServiceTest extends SpringComponentTest {
     }
 
     "the service" should "overwrite app categories" in {
-        val syncRequest = new SyncRequest(-1, profileAttributes = Seq(ProfileAttribute(key = "installed_apps", value = "me.sonar.android,org.wikipedia,ht.highlig")))
+        val syncRequest = new SyncRequest(-1, profileAttributes = Seq(ProfileAttribute(value = "me.sonar.android,org.wikipedia,ht.highlig", `type` = "installed_apps")))
         service.save(Platform.android, "dev1", "testApp-SyncServiceTest", syncRequest)
         Thread.sleep(5000)
         service.save(Platform.android, "dev1", "testApp-SyncServiceTest", syncRequest) //hack...do it twice incase we don't already have it in the db
@@ -58,7 +58,7 @@ class SyncServiceTest extends SpringComponentTest {
         assert(profileAttribute != null)
         assert(profileAttribute.attributes.filter(_.`type` == "category").size === 2)
 
-        val syncRequest2 = new SyncRequest(-1, profileAttributes = Seq(ProfileAttribute(key = "installed_apps", value = "me.sonar.android")))
+        val syncRequest2 = new SyncRequest(-1, profileAttributes = Seq(ProfileAttribute(`type` = "installed_apps", value = "me.sonar.android")))
         service.save(Platform.android, "dev1", "testApp-SyncServiceTest", syncRequest2)
         val profileAttribute2 = profileAttributesDao.findOne("testApp-SyncServiceTest-android-dev1").orNull
 

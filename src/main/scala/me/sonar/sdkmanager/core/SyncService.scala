@@ -64,12 +64,12 @@ class SyncService {
         }
         if (syncRequest.profileAttributes != null) {
             // TODO: this should happen on another schedule, not on sync
-            val factualData = syncRequest.profileAttributes.find(_.key == "home") match {
+            val factualData = syncRequest.profileAttributes.find(_.`type` == "home") match {
                 case Some(profileAttribute) =>
                     factualService.getFactualData(profileAttribute.value)
                 case _ => Seq.empty[ProfileAttribute]
             }
-            val appCategories = syncRequest.profileAttributes.find(_.key == "installed_apps") match {
+            val appCategories = syncRequest.profileAttributes.find(_.`type` == "installed_apps") match {
                 case Some(profileAttribute) =>
                     appMetadataService.getAppCategories(profileAttribute.value.split(","), platform)
                 case _ => Seq.empty[ProfileAttribute]

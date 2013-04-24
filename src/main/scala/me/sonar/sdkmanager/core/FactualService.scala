@@ -50,6 +50,10 @@ class FactualService extends Segmentation {
         def maxAttribute = fieldMap.maxBy(_._2)
     }
 
+    implicit class ProfileAttributeMapper(map : Map[String, Double]) {
+        def toProfileAttributes(`type`: String) = map.map{ case (v,p) => ProfileAttribute(v, p, `type`)}.toSeq
+    }
+
     def getFactualData(geohash: String) = {
         val response = factualDao.findOne(geohash).map(_.response).getOrElse {
             val point: WGS84Point = GeoHash.fromGeohashString(geohash).getBoundingBoxCenterPoint
@@ -72,7 +76,8 @@ class FactualService extends Segmentation {
                 _.map(_._2).sum
                 )
         val educationTotal = educationMap.values.sum
-        val (education, educationProbability) = educationMap mapValues (_ / educationTotal) maxBy (_._2)
+        val eds = educationMap mapValues (_ / educationTotal)
+        val educationAttributes = eds.toProfileAttributes("education")
         val ageTranslated = genderDistribution.keys flatMap {
             g => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
                 case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability
@@ -81,21 +86,18 @@ class FactualService extends Segmentation {
         val ageMap = ageTranslated.groupBy(_._1).mapValues(
             _.map(_._2).sum
         )
-        val totalAgeValues = ageMap.values.sum
-        val (age, ageProbability) = ageMap.mapValues(_ / totalAgeValues) maxBy (_._2)
-        val (gender, genderProbability) = genderDistribution.maxBy(_._2)
+        val ageAttributes = ageMap.toProfileAttributes("age")
+        val genderAttributes = genderDistribution.toProfileAttributes("gender")
         val medianIncome = demographics.get("income").get("median_income").get("amount").asInt()
         val incomeBucket = createSegments(medianIncome, incomeBuckets, None).head.name
-        val (housingMax, housingMaxProbability) = demographics.get("housing").get("household_type").maxAttribute
-        val (raceMax, raceMaxProbability) = demographics.get("race_and_ethnicity").get("race").maxAttribute
-        Seq(
-            ProfileAttribute("income", incomeBucket, 0.7),
-            ProfileAttribute("household", housingMax, housingMaxProbability),
-            ProfileAttribute("ethnicity", raceMax, raceMaxProbability),
-            ProfileAttribute("gender", gender, genderProbability),
-            ProfileAttribute("education", education, educationProbability),
-            ProfileAttribute("age", age, ageProbability)
-        )
+        val housingAttributes = demographics.get("housing").get("household_type").fieldMap.toProfileAttributes("household")
+        val ethnicityAttributes = demographics.get("race_and_ethnicity").get("race").fieldMap.toProfileAttributes("ethnicity")
+        val ret = Seq(
+            ProfileAttribute(incomeBucket, 0.7, "income")
+        ) ++ ageAttributes ++ genderAttributes ++ housingAttributes ++ ethnicityAttributes ++ educationAttributes
+
+//        ret.filterNot(_.probability == 0)
+        ret
     }
 
 }

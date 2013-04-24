@@ -9,7 +9,6 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import me.sonar.sdkmanager.model.Platform
 import me.sonar.sdkmanager.model.Platform._
-import me.sonar.sdkmanager.model.api.AppMetadataResponse
 
 @Service
 class AppMetadataService {
@@ -26,10 +25,10 @@ class AppMetadataService {
                 }
         })
                 .flatten
-                .map(appMeta => ProfileAttribute(appMeta.category, "true", 1, "category"))  //todo: figure out better probability
-                .groupBy(_.key).mapValues(c =>
+                .map(appMeta => ProfileAttribute(appMeta.category, 1, "category"))  //todo: figure out better probability
+                .groupBy(_.value).mapValues(c =>
             c.reduceLeft((r, s) => {
-                ProfileAttribute(s.key, s.value, r.probability + s.probability, s.`type`, s.lastModified) //(if we have 2 social categories, merge them and add the probabilities)
+                ProfileAttribute(s.value, r.probability + s.probability, s.`type`) //(if we have 2 social categories, merge them and add the probabilities)
             })).values.toSeq
     }
 
