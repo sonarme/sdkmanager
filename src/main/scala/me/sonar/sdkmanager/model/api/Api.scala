@@ -59,7 +59,7 @@ abstract class Trigger {
     @BeanProperty
     var publish: Boolean = _
     @BeanProperty
-    var processRole: Boolean = _
+    var action: Boolean = _
 }
 
 case class StaticGeoFence(lat: Double, lng: Double, radius: Float, entering: Boolean) extends Trigger
