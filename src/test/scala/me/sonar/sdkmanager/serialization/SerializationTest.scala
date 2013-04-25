@@ -16,7 +16,7 @@ class SerializationTest extends SimpleTest {
     "the rest object mapper" should "(de)serialize StaticGeofences" in {
         val fence = StaticGeoFence(lat = 40.7453940, lng = -73.9838360, radius = 800, entering = true)
         fence.id = "testfence"
-        fence.processRole = true
+        fence.action = true
         fence.publish = true
         val json = om.writeValueAsString(fence)
         val back = om.readValue(json, classOf[StaticGeoFence])
@@ -32,7 +32,7 @@ class SerializationTest extends SimpleTest {
     "the rest object mapper" should "(de)serialize DynamicGeoFences" in {
         val fence = DynamicGeoFence("home", radius = 150)
         fence.id = "testfence"
-        fence.processRole = true
+        fence.action = true
         fence.publish = true
         val json = om.writeValueAsString(fence)
         val back = om.readValue(json, classOf[DynamicGeoFence])
