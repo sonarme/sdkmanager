@@ -9,7 +9,10 @@ import me.sonar.sdkmanager.core.SimpleMongoRepository
 import collection.JavaConversions._
 import java.util.Date
 import me.sonar.sdkmanager.core.ScalaGoodies._
-import com.mongodb.MapReduceCommand
+import com.mongodb.{WriteResult, MapReduceCommand}
+import org.springframework.data.mongodb.core.query.{Update, Criteria, Query}
+import me.sonar.sdkmanager.model.Platform
+import scala.beans.BeanProperty
 
 @Document(collection = "sdk_apps")
 class App {
@@ -23,8 +26,10 @@ class AppDao extends SimpleMongoRepository[App] {
 }
 
 case class ProfileAttribute(
-                                   var key: String, var value: String, var probability: Double = 1, var lastModified: Date = new Date
-                                   )
+                                   var value: String, var probability: Double = 1, var `type`: String = "none", var lastModified: Date = new Date
+                                   ) {
+    var id = `type` + "-" + value
+}
 
 @Document(collection = "sdk_profile_attributes")
 case class ProfileAttributes(
@@ -38,6 +43,7 @@ case class ProfileAttributes(
 
 @Repository
 class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
+
     val aggregateMap = """function Map() {
                          |
                          |	emit(
@@ -65,7 +71,7 @@ class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
     def mergeUpsert(o: ProfileAttributes) = {
         findOne(o.id).map(_.attributes) foreach {
             existing =>
-                o.attributes = (o.attributes ++ existing).distinctBy(_.key)
+                o.attributes = (o.attributes ++ existing).distinctBy(_.id)
         }
         save(o)
     }
@@ -73,8 +79,14 @@ class ProfileAttributesDao extends SimpleMongoRepository[ProfileAttributes] {
     def aggregateGeofences(appId: String, tempCollection: String) = {
         mapReduce( s"""{appId:"$appId"}""", aggregateMap, aggregateReduce, None, tempCollection, MapReduceCommand.OutputType.REDUCE)
     }
+
+    def removeAttributesWithType(id: String, `type`: String) {
+        mongoOperations.updateFirst(query(where("_id") is id),
+            new Update().pull("attributes", new ProfileAttributePull(`type`)), classOf[ProfileAttributes])
+    }
 }
 
+private case class ProfileAttributePull(var `type`: String)
 
 @Document(collection = "sdk_campaigns")
 case class AppCampaign(
@@ -92,7 +104,7 @@ class AppCampaignDao extends SimpleMongoRepository[AppCampaign] {
 case class GeofenceEvent(
                                 var id: String,
                                 var appId: String,
-                                var platform: String,
+                                var platform: Platform,
                                 var deviceId: String,
                                 var geofenceId: String,
                                 var lat: Double,
@@ -151,7 +163,7 @@ class FactualGeopulseDao extends SimpleMongoRepository[FactualGeopulse]
 @Document(collection = "sdk_app_metadata")
 case class AppMetadata(
                               var id: String,
-                              var platform: String,
+                              var platform: Platform,
                               var category: String)
 
 @Repository
