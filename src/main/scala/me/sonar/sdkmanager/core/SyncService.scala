@@ -49,7 +49,7 @@ class SyncService {
     val visitorsGeofencesProject = JSON.parse( """{ $project : { geofenceIds: "$value.geofenceIds", attributes: "$value.attributes" } }""").asInstanceOf[BasicDBObject]
     val visitorsGeofencesUnwind1 = JSON.parse( """{ $unwind : "$geofenceIds" }""").asInstanceOf[BasicDBObject]
     val visitorsGeofencesUnwind2 = JSON.parse( """{ $unwind : "$attributes" }""").asInstanceOf[BasicDBObject]
-    val visitorsGeofencesGroup = JSON.parse( """{ $group : { _id: { geofenceId: "$geofenceIds", attributeKey: "$attributes._id", attributeValue: "$attributes.value" }, "weight": { $sum: "$attributes.probability"} } }""").asInstanceOf[BasicDBObject]
+    val visitorsGeofencesGroup = JSON.parse( """{ $group : { _id: { geofenceId: "$geofenceIds", attributeKey: "$attributes.type", attributeValue: "$attributes.value" }, "weight": { $sum: "$attributes.probability"} } }""").asInstanceOf[BasicDBObject]
 
     def save(platform: Platform, deviceId: String, appId: String, syncRequest: SyncRequest) = {
         val compositeDeviceId = platform + "-" + deviceId
