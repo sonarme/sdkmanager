@@ -4,9 +4,13 @@ import org.springframework.stereotype.Service
 import javax.inject.Inject
 import me.sonar.sdkmanager.model.db._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.factual.driver.{Geopulse, Point, Factual}
+import com.factual.driver._
 import ch.hsr.geohash.{WGS84Point, GeoHash}
 import collection.JavaConversions._
+import me.sonar.sdkmanager.model.db.ProfileAttribute
+import me.sonar.sdkmanager.model.db.FactualGeopulse
+import scala.collection.JavaConverters._
+import me.sonar.sdkmanager.model.api.FactualRequest
 
 @Service
 class FactualService extends Segmentation {
@@ -50,8 +54,10 @@ class FactualService extends Segmentation {
         def maxAttribute = fieldMap.maxBy(_._2)
     }
 
-    implicit class ProfileAttributeMapper(map : Map[String, Double]) {
-        def toProfileAttributes(`type`: String) = map.map{ case (v,p) => ProfileAttribute(v, p, `type`)}.toSeq
+    implicit class ProfileAttributeMapper(map: Map[String, Double]) {
+        def toProfileAttributes(`type`: String) = map.map {
+            case (v, p) => ProfileAttribute(v, p, `type`)
+        }.toSeq
     }
 
     def getFactualData(geohash: String) = {
@@ -96,10 +102,30 @@ class FactualService extends Segmentation {
             ProfileAttribute(incomeBucket, 0.7, "income")
         ) ++ ageAttributes ++ genderAttributes ++ housingAttributes ++ ethnicityAttributes ++ educationAttributes
 
-//        ret.filterNot(_.probability == 0)
+        //        ret.filterNot(_.probability == 0)
         ret
     }
 
-}
+    def getFactualPlaces(factualRequest: FactualRequest) = {
+        val query = new Query()
+                .search(factualRequest.query)
+        factualRequest.geo.map( geo => query.within(new Circle(geo.lat, geo.lng, geo.radius)) )
+        factualRequest.filter.map { filter =>
+            filter.region.map(query.field("region").inList(_))
+            filter.locality.map(query.field("locality").inList(_))
+            filter.category.map(category => {
+                val categoryIds = category.map(getFactualCategoryIds(_).getData.map(_.get("category_id"))).toSet.toList.flatten
+                query.field("category_ids").inList(categoryIds)
+            })
+        }
+        factualRequest.limit.map(query.limit(_))
+        factualRequest.offset.map(query.offset(_))
+        factual.fetch("places", query)
+    }
 
-case class FactualData()
+    def getFactualCategoryIds(term: String) = {
+        val query = new Query()
+            .search(term)
+        factual.fetch("places-categories", query)
+    }
+}
