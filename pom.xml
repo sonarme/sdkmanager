@@ -204,7 +204,7 @@
         <dependency>
             <groupId>com.factual</groupId>
             <artifactId>factual-java-driver</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.7</version>
         </dependency>
 
         <!-- Test -->

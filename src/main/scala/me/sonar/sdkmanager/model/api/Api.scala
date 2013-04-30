@@ -78,3 +78,18 @@ case class NotPredicate(predicate: Predicate) extends Predicate
     new Type(name = "not", value = classOf[NotPredicate])))
 abstract class Predicate
 
+
+
+
+case class FactualRequest(query: String, geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, offset: Option[Int] = None)
+
+case class FactualFilter(category: Option[Seq[String]] = None,
+                         region: Option[Seq[String]] = None,
+                         locality: Option[Seq[String]] = None)
+
+case class FactualGeo(lat: Double,
+                      lng: Double,
+                      radius: Int = 5000)
+
+case class FactualPlace()
+case class FactualResponse(places: Seq[FactualPlace])
