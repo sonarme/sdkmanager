@@ -91,5 +91,4 @@ case class FactualGeo(lat: Double,
                       lng: Double,
                       radius: Int = 5000)
 
-case class FactualPlace()
-case class FactualResponse(places: Seq[FactualPlace])
+case class FactualResponse(data: java.util.List[java.util.Map[String, Object]])

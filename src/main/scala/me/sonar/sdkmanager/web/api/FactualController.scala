@@ -6,7 +6,8 @@ import javax.inject.Inject
 import me.sonar.sdkmanager.core.{FactualService}
 import org.springframework.web.bind.annotation._
 import scala.Array
-import me.sonar.sdkmanager.model.api.FactualRequest
+import scala.collection.JavaConversions._
+import me.sonar.sdkmanager.model.api.{FactualResponse, FactualRequest}
 
 @Controller
 class FactualController extends Logging {
@@ -16,7 +17,7 @@ class FactualController extends Logging {
     @RequestMapping(value = Array("/factual"), method = Array(RequestMethod.POST))
     @ResponseBody
     def factual(@RequestBody factualRequest: FactualRequest) = {
-        val response = factualService.getFactualPlaces(factualRequest)
-        response.getData
+        val data = factualService.getFactualPlaces(factualRequest).getData
+        FactualResponse(data)
     }
 }

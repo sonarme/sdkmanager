@@ -10,7 +10,7 @@ import collection.JavaConversions._
 import me.sonar.sdkmanager.model.db.ProfileAttribute
 import me.sonar.sdkmanager.model.db.FactualGeopulse
 import scala.collection.JavaConverters._
-import me.sonar.sdkmanager.model.api.{FactualPlace, FactualRequest}
+import me.sonar.sdkmanager.model.api.FactualRequest
 
 @Service
 class FactualService extends Segmentation {
