@@ -3,7 +3,7 @@
         <fieldset>
             <legend>Compose Message</legend>
             <div class="row">
-                <div class="span5">
+                <div class="span8">
                     <div class="control-group">
                         <label class="control-label">Campaign name</label>
 
@@ -41,21 +41,21 @@
                         </div>
                     </div>
 
-                    <div class="control-group">
-                        <label class="control-label">Where</label>
+                    <div class="control-group" ng-repeat="clause in clauses">
+                        <label class="control-label" ng-show="$index==0">Where</label>
+                        <label class="control-label" ng-show="$index>0" ng-click="togglePredicate()">{{predicates[predicateIdx]
+                            | uppercase}}</label>
 
                         <div class="controls">
-                            <div ng-repeat="clause in clauses" class="row">
-                                <select
-                                        ng-model="clause.attribute"
-                                        ng-options="attribute.name for attribute in [{name:'Gender', id:'gender'}, {name:'Income', id:'income'}]"
-                                        class="span3"></select>
-                                <select
-                                        ng-model="clause.compareOp"
-                                        ng-options="compareOp for compareOp in  ['=']" class="span2"></select>
-                                <input type="text" ng-model="clause.value"/>
-                                <a class="icon-plus-sign" ng-click="createClause()"></a>
-                            </div>
+                            <select
+                                    ng-model="attribute"
+                                    ng-options="a.name for a in attributes"
+                                    class="span3"></select>
+                            <select
+                                    ng-model="clause.compareOp"
+                                    ng-options="c.name for c in compareOps" class="span3"></select>
+                            <input type="text" ng-model="clause.value" class="span4"/>
+                            <a class="icon-plus-sign" ng-click="createClause()"></a>
                         </div>
                     </div>
                     <div class="control-group">
@@ -64,7 +64,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="span5">
+                <div class="span2">
                     <span>{{campaign.message}}</span>
                 </div>
             </div>
