@@ -114,7 +114,7 @@ class FactualService extends Segmentation {
             filter.region.map(query.field("region").inList(_))
             filter.locality.map(query.field("locality").inList(_))
             filter.category.map(category => {
-                val categoryIds = category.map(getFactualCategoryIds(_).getData.map(_.get("category_id"))).toSet.toList.flatten
+                val categoryIds = category.map(getFactualCategoryIds(_)).toSet.toList.flatten
                 query.field("category_ids").inList(categoryIds)
             })
         }
@@ -126,6 +126,6 @@ class FactualService extends Segmentation {
     def getFactualCategoryIds(term: String) = {
         val query = new Query()
             .search(term)
-        factual.fetch("places-categories", query)
+        factual.fetch("places-categories", query).getData.map(_.get("category_id")).toList
     }
 }
