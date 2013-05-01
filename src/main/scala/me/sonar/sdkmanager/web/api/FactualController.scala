@@ -22,6 +22,7 @@ class FactualController extends Logging {
                 @RequestParam(required = false, value = "lng") lng: java.lang.Double,
                 @RequestParam(required = false, value = "radius") radius: java.lang.Integer,
                 @RequestParam(required = false, value = "category") category: String,
+                @RequestParam(required = false, value = "country") country: String,
                 @RequestParam(required = false, value = "region") region: String,
                 @RequestParam(required = false, value = "locality") locality: String,
                 @RequestParam(required = false, value = "limit") limit: java.lang.Integer,
@@ -30,12 +31,13 @@ class FactualController extends Logging {
             case (Some(latitude), Some(longitude)) => Option(FactualGeo(latitude, longitude, optionInteger(radius).getOrElse(5000)))
             case _ => None
         }
-        val categories = Option(category).orElse(None)
-        val regions = Option(region).orElse(None)
-        val localities = Option(locality).orElse(None)
+        val categories = optionString(category)
+        val countries = optionString(country)
+        val regions = optionString(region)
+        val localities = optionString(locality)
         val filter =
-            if (categories.isDefined || regions.isDefined || localities.isDefined)
-                Option(FactualFilter(Option(category).orElse(None).map(_.split(",")), Option(region).orElse(None).map(_.split(",")), Option(locality).orElse(None).map(_.split(","))))
+            if (categories.isDefined || regions.isDefined || localities.isDefined || countries.isDefined)
+                Option(FactualFilter(categories.map(_.split(",")), regions.map(_.split(",")), localities.map(_.split(",")), countries.map(_.split(","))))
             else
                 None
 

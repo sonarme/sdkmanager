@@ -40,7 +40,7 @@ class FactualTest extends SpringComponentTest {
         assert(manhburger.getData != null)
         assert(List("MA", "NH").contains(manhburger.getData.head.get("region")))
 
-        val request4 = new FactualRequest(query = None, filter = Option(FactualFilter(category = Option(List("social", "bar")))))
+        val request4 = new FactualRequest(query = None, filter = Option(FactualFilter(category = Option(List("social", "bar")), country = Option(List("US","CA")))))
         val socialAndBar = factualService.getFactualPlaces(request4)
         assert(socialAndBar.getData != null)
 

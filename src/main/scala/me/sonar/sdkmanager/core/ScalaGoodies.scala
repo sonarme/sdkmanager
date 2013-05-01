@@ -29,6 +29,8 @@ object ScalaGoodies {
 
     def optionBoolean(value: java.lang.Boolean): Option[Boolean] = if (value == null) None else Some(value.booleanValue())
 
+    def optionString(value: String): Option[String] = Option(value).map(_.trim).filterNot(_.isEmpty)
+
     private val urlSafeBase64 = new Base64(0, Array[Byte](), true)
     private val secureRandom = new SecureRandom
 

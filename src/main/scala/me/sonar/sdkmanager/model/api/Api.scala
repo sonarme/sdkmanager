@@ -79,13 +79,12 @@ case class NotPredicate(predicate: Predicate) extends Predicate
 abstract class Predicate
 
 
-
-
 case class FactualRequest(query: Option[String], geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, offset: Option[Int] = None)
 
 case class FactualFilter(category: Option[Seq[String]] = None,
                          region: Option[Seq[String]] = None,
-                         locality: Option[Seq[String]] = None)
+                         locality: Option[Seq[String]] = None,
+                         country: Option[Seq[String]] = None)
 
 case class FactualGeo(lat: Double,
                       lng: Double,

@@ -113,6 +113,7 @@ class FactualService extends Segmentation {
         factualRequest.filter.map { filter =>
             filter.region.map(query.field("region").inList(_))
             filter.locality.map(query.field("locality").inList(_))
+            filter.country.map(query.field("country").inList(_))
             filter.category.map(category => {
                 val categoryIds = category.map(getFactualCategoryIds(_)).toSet.toList.flatten
                 query.field("category_ids").inList(categoryIds)
