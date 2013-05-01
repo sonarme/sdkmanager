@@ -21,7 +21,7 @@ class FactualTest extends SpringComponentTest {
 
     "factual" should "return category ids" in {
         val categoryIds = factualService.getFactualCategoryIds("bar")
-        assert(categoryIds.getData.size() > 0)
+        assert(categoryIds.size() > 0)
     }
 
     "factual" should "return places data" in {
