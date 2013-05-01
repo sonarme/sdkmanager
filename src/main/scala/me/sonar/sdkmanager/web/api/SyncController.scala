@@ -36,6 +36,13 @@ class SyncController extends Logging {
     @ResponseBody
     def ping(): String = ""
 
+    @RequestMapping(value = Array("/campaigns"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def campaigns(@RequestBody body: java.util.Map[String, Any]) = {
+        info(s"POST $body")
+        ""
+    }
+
     @RequestMapping(value = Array("/sync"), method = Array(RequestMethod.POST))
     @ResponseBody
     def sync(@RequestHeader("X-Sonar-ApiKey") apiKey: String,

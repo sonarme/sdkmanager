@@ -3,22 +3,23 @@
 /* Controllers */
 
 angular.module('dashboard.controllers', [])
-    .controller('MarketingBuild', ['$scope', function ($scope) {
+    .controller('MarketingBuild', ['$scope', 'Campaign', function ($scope, Campaign) {
         $scope.clauses = [
             {}
         ];
-        $scope.createCampaign = function (err) {
+        function _fn_error(err) {
             alert(err);
 
         }
 
-        $scope.createCampaign = function (data) {
+        function _fn_success_put_post(data) {
         }
 
-        $scope.createCampaign = function () {
-            alert('test');
-            //$scope.customer.$save(_fn_success_put_post, _fn_error);
-        }
+        $scope.save = function () {
+            var campaign = new Campaign($scope.campaign);
+            campaign.$save();
+        };
+
         $scope.createClause = function () {
             $scope.clauses.push({});
         }

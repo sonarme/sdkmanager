@@ -20,11 +20,6 @@ class DashboardController extends Logging {
     @Inject
     var campaignService: CampaignService = _
 
-    @RequestMapping(value = Array("/campaigns"), method = Array(RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE))
-    def campaigns(@RequestParam("id") campaignId: String, @RequestBody body: String) {
-        info(s"$campaignId / $body")
-    }
-
     @RequestMapping(value = Array("/stats"), method = Array(RequestMethod.GET))
     def stats(@RequestParam("appId") appId: String, response: HttpServletResponse) {
         val dwellTimes = syncService.aggregateDwellTime(appId)
