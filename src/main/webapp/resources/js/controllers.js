@@ -39,6 +39,10 @@ angular.module('dashboard.controllers', [])
             $scope.clauses.push({});
         }
     }])
-    .controller('GeofenceBuildCtrl', [function () {
+    .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
+//        $scope.places = Factual.get({query: "burger", region: "NY", locality:"New York"});
 
+        $scope.search = function() {
+            $scope.places = Factual.get(this);
+        }
     }]);

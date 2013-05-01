@@ -108,7 +108,7 @@ class FactualService extends Segmentation {
 
     def getFactualPlaces(factualRequest: FactualRequest) = {
         val query = new Query()
-                .search(factualRequest.query)
+        factualRequest.query.map(query.search(_))
         factualRequest.geo.map( geo => query.within(new Circle(geo.lat, geo.lng, geo.radius)) )
         factualRequest.filter.map { filter =>
             filter.region.map(query.field("region").inList(_))
