@@ -7,6 +7,9 @@
 // In this case it is a simple value service.
 angular.module('dashboard.services', ['ngResource'])
     .value('version', '0.1')
-    .factory('Campaign', function ($resource) {
+    .factory('Campaigns', function ($resource) {
         return $resource('/api/campaigns/:campaignId', {}, {})
-    });
+    })    
+    .factory('Factual', function ($resource) {
+        return $resource('stubs/factual/:search.json', {}, {})
+    })

@@ -1,0 +1,46 @@
+{
+    "id": "macys",
+    "appId": "macys",
+    "triggers": [
+        {
+            "type": "sta",
+            "id": "sonarhq",
+            "publish": true,
+            "action": true,
+            "entering": true,
+            "lat": 40.745394,
+            "lng": -73.983836,
+            "radius": 50.0
+        },
+        {
+            "type": "sta",
+            "id": "empirestate",
+            "publish": true,
+            "action": true,
+            "entering": true,
+            "lat": 40.748265,
+            "lng": -73.984916,
+            "radius": 50.0
+        },
+        {
+            "type": "sta",
+            "id": "rockcenter",
+            "publish": true,
+            "action": true,
+            "entering": true,
+            "lat": 40.758652,
+            "lng": -73.981032,
+            "radius": 50.0
+        }
+    ],
+    "rule": {
+        "actions": [
+            {
+                "type": "msg",
+                "text": "Geofence triggered",
+                "url": null,
+                "viewLabel": null
+            }
+        ]
+    }
+}
