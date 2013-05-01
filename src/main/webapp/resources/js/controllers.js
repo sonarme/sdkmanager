@@ -4,8 +4,8 @@
 
 angular.module('dashboard.controllers', [])
     .controller('MarketingBuild', ['$scope', 'Campaign', function ($scope, Campaign) {
-        $scope.predicates = ['and', 'or']
-        $scope.predicateIdx = 0
+
+        $scope.predicate = 'and';
         $scope.attributes = [
             {name: 'Gender', id: 'gender'},
             {name: 'Income', id: 'income'}
@@ -27,10 +27,6 @@ angular.module('dashboard.controllers', [])
         }
 
         function _fn_success_put_post(data) {
-        }
-
-        $scope.togglePredicate = function () {
-            $scope.predicateIdx = ($scope.predicateIdx + 1) % $scope.predicates.length
         }
 
         $scope.save = function () {

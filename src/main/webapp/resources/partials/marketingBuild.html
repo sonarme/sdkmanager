@@ -51,9 +51,25 @@
                         </div>
                     </div>
                     <div class="control-group" ng-repeat="clause in clauses">
-                        <label class="control-label" ng-show="$index==0">If</label>
-                        <label class="control-label" ng-show="$index>0" ng-click="togglePredicate()">{{predicates[predicateIdx]
-                            | uppercase}}</label>
+                        <label class="control-label">
+                            <div>
+                                <div ng-show="$index==0">If</div>
+                                <div class="btn-group" ng-show="false">
+                                    <button type="button" class="btn btn-primary" ng-model="radioModel"
+                                            btn-radio="'Right'">Right
+                                    </button>
+                                </div>
+                                <div ng-show="$index==1" class="btn-group">
+                                    <button type="button" class="btn btn-primary" ng-model="predicate"
+                                            btn-radio="'and'">And
+                                    </button>
+                                    <button type="button" class="btn btn-primary" ng-model="predicate" btn-radio="'or'">
+                                        Or
+                                    </button>
+                                </div>
+                                <div ng-show="$index>1">{{predicate}}</div>
+                            </div>
+                        </label>
 
                         <div class="controls">
                             <select
