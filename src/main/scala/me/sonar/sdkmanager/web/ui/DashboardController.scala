@@ -1,7 +1,7 @@
 package me.sonar.sdkmanager.web.ui
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestParam, RequestMethod, RequestMapping}
+import org.springframework.web.bind.annotation.{RequestBody, RequestParam, RequestMethod, RequestMapping}
 import scala.Array
 import org.springframework.http.{MediaType, HttpOutputMessage}
 import java.nio.charset.Charset
@@ -11,13 +11,19 @@ import javax.servlet.http.HttpServletResponse
 import javax.inject.Inject
 import me.sonar.sdkmanager.core.{CountStats, CampaignService, SyncService}
 import org.scala_tools.time.Imports._
+import grizzled.slf4j.Logging
 
 @Controller
-class DashboardController {
+class DashboardController extends Logging {
     @Inject
     var syncService: SyncService = _
     @Inject
     var campaignService: CampaignService = _
+
+    @RequestMapping(value = Array("/campaigns"), method = Array(RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE))
+    def campaigns(@RequestParam("id") campaignId: String, @RequestBody body: String) {
+        info(s"$campaignId / $body")
+    }
 
     @RequestMapping(value = Array("/stats"), method = Array(RequestMethod.GET))
     def stats(@RequestParam("appId") appId: String, response: HttpServletResponse) {

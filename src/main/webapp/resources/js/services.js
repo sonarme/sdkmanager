@@ -8,7 +8,5 @@
 angular.module('dashboard.services', ['ngResource'])
     .value('version', '0.1')
     .factory('Campaigns', function ($resource) {
-        return $resource('campaigns/:campaignId.json', {}, {
-            query: {method: 'GET', params: {phoneId: 'campaigns'}, isArray: true}
-        })
+        return $resource('campaigns/:campaignId.json', {}, {})
     });

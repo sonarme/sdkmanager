@@ -1,52 +1,73 @@
-<form name="form" class="form-horizontal" novalidate>
-    <fieldset>
-        <legend>Compose Message</legend>
-        <div class="row">
-            <div class="span5">
-                <div class="control-group">
-                    <label class="control-label">Campaign name</label>
+<div ng-controller="MarketingBuild">
+    <form name="form" class="form-horizontal" novalidate>
+        <fieldset>
+            <legend>Compose Message</legend>
+            <div class="row">
+                <div class="span5">
+                    <div class="control-group">
+                        <label class="control-label">Campaign name</label>
 
-                    <div class="controls">
-                        <input type="text" name="name" ng-model="campaign.name"
-                               placeholder="Type your campaign name here"
-                               required>
-                        <span class="input-help" ng-show="form.name.$dirty && form.name.$invalid">Invalid name</span>
+                        <div class="controls">
+                            <input type="text" name="name" ng-model="campaign.name"
+                                   placeholder="Type your campaign name here"
+                                   required>
+                            <span class="input-help"
+                                  ng-show="form.name.$dirty && form.name.$invalid">Invalid name</span>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label">Message</label>
+                    <div class="control-group">
+                        <label class="control-label">Message</label>
 
-                    <div class="controls">
-                        <input type="text" name="message" ng-model="campaign.message"
-                               placeholder="Type the short form of your message here" required>
+                        <div class="controls">
+                            <input type="text" name="message" ng-model="campaign.message"
+                                   placeholder="Type the short form of your message here" required>
                         <span class="input-help"
                               ng-show="form.message.$dirty && form.message.$invalid">Invalid message</span>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label">Full text</label>
+                    <div class="control-group">
+                        <label class="control-label">Full text</label>
 
-                    <div class="controls">
-                        <textarea rows="3" name="text" ng-model="campaign.text"></textarea>
+                        <div class="controls">
+                            <textarea rows="3" name="text" ng-model="campaign.text"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label">URL</label>
+                    <div class="control-group">
+                        <label class="control-label">URL</label>
 
-                    <div class="controls">
-                        <input type="url" name="url" ng-model="campaign.url" placeholder="http://...">
-                        <span class="input-help" ng-show="form.url.$dirty && form.url.$invalid">Invalid URL</span>
+                        <div class="controls">
+                            <input type="url" name="url" ng-model="campaign.url" placeholder="http://...">
+                            <span class="input-help" ng-show="form.url.$dirty && form.url.$invalid">Invalid URL</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">Where</label>
+
+                        <div class="controls">
+                            <div ng-repeat="clause in clauses" class="row">
+                                <select
+                                        ng-model="clause.attribute"
+                                        ng-options="attribute.name for attribute in [{name:'Gender', id:'gender'}, {name:'Income', id:'income'}]"
+                                        class="span3"></select>
+                                <select
+                                        ng-model="clause.compareOp"
+                                        ng-options="compareOp for compareOp in  ['=']" class="span2"></select>
+                                <input type="text" ng-model="clause.value"/>
+                                <a class="icon-plus-sign" ng-click="createClause()"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="controls">
+                            <button type="submit" class="btn btn-primary" ng-click="createCampaign()">Submit</button>
+                        </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
+                <div class="span5">
+                    <span>{{campaign.message}}</span>
                 </div>
             </div>
-            <div class="span5">
-                <span>{{campaign.message}}</span>
-            </div>
-        </div>
-    </fieldset>
-</form>
+        </fieldset>
+    </form>
+</div>
