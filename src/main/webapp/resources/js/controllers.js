@@ -24,6 +24,6 @@ angular.module('dashboard.controllers', [])
             $scope.clauses.push({});
         }
     }])
-    .controller('MyCtrl2', [function () {
+    .controller('GeofenceBuildCtrl', [function () {
 
     }]);
