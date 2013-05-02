@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation._
 import scala.Array
 import scala.collection.JavaConversions._
 import me.sonar.sdkmanager.core.ScalaGoodies._
-import me.sonar.sdkmanager.model.api.{FactualFilter, FactualGeo, FactualResponse, FactualRequest}
+import me.sonar.sdkmanager.model.api.{FactualFilter, FactualGeo, FactualPlaceResponse, FactualPlaceRequest}
 
 @Controller
 class FactualController extends Logging {
@@ -41,8 +41,7 @@ class FactualController extends Logging {
             else
                 None
 
-        val factualRequest = FactualRequest(Option(query), geo, filter, optionInteger(limit), optionInteger(offset))
-        val data = factualService.getFactualPlaces(factualRequest).getData
-        FactualResponse(data)
+        val factualRequest = FactualPlaceRequest(Option(query), geo, filter, optionInteger(limit), optionInteger(offset))
+        factualService.getFactualPlaces(factualRequest)
     }
 }

@@ -10,7 +10,7 @@ import collection.JavaConversions._
 import me.sonar.sdkmanager.model.db.ProfileAttribute
 import me.sonar.sdkmanager.model.db.FactualGeopulse
 import scala.collection.JavaConverters._
-import me.sonar.sdkmanager.model.api.FactualRequest
+import me.sonar.sdkmanager.model.api.{FactualPlaceResponse, FactualPlaceRequest}
 
 @Service
 class FactualService extends Segmentation {
@@ -106,8 +106,9 @@ class FactualService extends Segmentation {
         ret
     }
 
-    def getFactualPlaces(factualRequest: FactualRequest) = {
+    def getFactualPlaces(factualRequest: FactualPlaceRequest) = {
         val query = new Query()
+        .includeRowCount()
         factualRequest.query.map(query.search(_))
         factualRequest.geo.map( geo => query.within(new Circle(geo.lat, geo.lng, geo.radius)) )
         factualRequest.filter.map { filter =>
@@ -121,7 +122,8 @@ class FactualService extends Segmentation {
         }
         factualRequest.limit.map(query.limit(_))
         factualRequest.offset.map(query.offset(_))
-        factual.fetch("places", query)
+        val res = factual.fetch("places", query)
+        FactualPlaceResponse(res.getTotalRowCount, res.getIncludedRowCount, res.getStatus, res.getData)
     }
 
     def getFactualCategoryIds(term: String) = {
