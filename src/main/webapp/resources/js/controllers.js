@@ -36,8 +36,18 @@ angular.module('dashboard.controllers', [])
             {name: 'greater than', id: 'GREATER'},
             {name: 'greater than or equal', id: 'GREATEROREQUAL'}
         ];
+        $scope.geofenceActions = [
+            {name: "Arriving at", id: "entering"},
+            {name: "Leaving", id: "leaving"}
+        ]
+        $scope.geofenceLists = [
+            {name: "Bla", id: "bla"}
+        ]
         $scope.clauses = [
             {attribute: "", compareOp: ""}
+        ];
+        $scope.geofenceEntries = [
+            {}
         ];
         function _fn_error(err) {
             alert(err);
@@ -61,16 +71,22 @@ angular.module('dashboard.controllers', [])
         $scope.createClause = function () {
             $scope.clauses.push({});
         }
+        $scope.removeGeofenceEntry = function (ga) {
+            $scope.geofenceEntries.splice($scope.geofenceEntries.indexOf(ga), 1);
+        }
+        $scope.addGeofenceEntry = function () {
+            $scope.geofenceEntries.push({});
+        }
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
-        $scope.search = function() {
+        $scope.search = function () {
             this.limit = 50;
             $scope.places = Factual.get(this);
         }
-        $scope.removePlace = function() {
+        $scope.removePlace = function () {
 
         }
-        $scope.showResultsTable = function() {
+        $scope.showResultsTable = function () {
             return $scope.places !== undefined;
         }
     }]);
