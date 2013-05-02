@@ -10,6 +10,24 @@ angular.module('dashboard.controllers', [])
             {name: 'Gender', id: 'gender'},
             {name: 'Income', id: 'income'}
         ];
+        $scope.dows = [
+            {name: 'Monday', id: 2},
+            {name: 'Tuesday', id: 3},
+            {name: 'Wednesday', id: 4},
+            {name: 'Thursday', id: 5},
+            {name: 'Friday', id: 6},
+            {name: 'Saturday', id: 7},
+            {name: 'Sunday', id: 1}
+        ];
+        $scope.frequencyCaps = [
+            {name: 'per hour', id: 'hour'},
+            {name: 'per day', id: 'day'},
+            {name: 'per week', id: 'week'},
+            {name: 'per month', id: 'month'},
+            {name: 'ever', id: 'ever'}
+        ];
+        $scope.frequencyCap = $scope.frequencyCaps[$scope.frequencyCaps.length - 1];
+        $scope.frequencyCapEnabled = true;
         $scope.compareOps = [
             {name: 'equals', id: 'EQUAL'},
             {name: 'does not equal', id: 'NOTEQUAL'},
@@ -29,12 +47,17 @@ angular.module('dashboard.controllers', [])
         function _fn_success_put_post(data) {
         }
 
+        $scope.setPredicate = function (pred) {
+            $scope.predicate = pred;
+        };
         $scope.save = function () {
             var campaign = new Campaign($scope.campaign);
             campaign.clauses = $scope.clauses;
             campaign.$save();
         };
-
+        $scope.removeClause = function (clause) {
+            $scope.clauses.splice($scope.clauses.indexOf(clause), 1);
+        }
         $scope.createClause = function () {
             $scope.clauses.push({});
         }
