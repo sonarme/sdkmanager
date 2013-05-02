@@ -49,6 +49,8 @@ angular.module('dashboard.controllers', [])
         $scope.geofenceEntries = [
             {}
         ];
+        $scope.dowSelected = {
+        };
         function _fn_error(err) {
             alert(err);
 
@@ -77,6 +79,16 @@ angular.module('dashboard.controllers', [])
         $scope.addGeofenceEntry = function () {
             $scope.geofenceEntries.push({});
         }
+        $scope.refreshDowAll = function () {
+            for (var i = 1; i <= 7; ++i)
+                $scope.dowSelected[i] = $scope.dowAll;
+        }
+        $scope.allDowSelected = function () {
+            for (var i = 1; i <= 7; ++i)
+                if (!$scope.dowSelected[i]) return false;
+            return true;
+        }
+
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
         $scope.search = function () {

@@ -54,7 +54,7 @@
                     <label class="control-label">If</label>
 
                     <div class="controls">
-                        <div ng-repeat="clause in clauses" class="row">
+                        <div ng-repeat="clause in clauses" class="row-fluid">
                             <div ng-show="$index==0" class="span2">&nbsp;</div>
                             <div ng-show="$index==1" class="span2">
                                 <div class="btn-group">
@@ -132,15 +132,23 @@
                         <div class="row-fluid">
                             <div class="span3">
                                 <div class="dropdown">
-                                    <button type="button" class="btn dropdown-toggle-keep">Select <b
-                                            class="caret"></b></button>
+                                    <button type="button" class="btn dropdown-toggle-keep">{{ allDowSelected() && 'All
+                                        Week' || 'Specific Days'}} <b
+                                                class="caret"></b></button>
                                     <ul class="dropdown-menu">
                                         <li ng-repeat="dow in dows">
                                             <label>
-                                                <input type="checkbox" name="campaign.dow" value="{{dow.id}}">
+                                                <input type="checkbox" name="dowGroup" value="{{dow.id}}"
+                                                       ng-model="dowSelected[dow.id]">
                                                 <span>{{dow.name}}</span>
                                             </label>
                                         </li>
+                                        <li><label>
+                                            <input type="checkbox" name="dowGroup" value="all"
+                                                   ng-model="dowAll"
+                                                   ng-change="refreshDowAll()">
+                                            <span>All</span>
+                                        </label></li>
                                     </ul>
                                 </div>
                             </div>
@@ -163,7 +171,8 @@
                 </div>
                 <div class="control-group">
                     <div class="controls">
-                        <button type="submit" class="btn btn-primary" ng-click="save()">Submit</button>
+                        <button type="submit" class="btn" ng-click="save()">Save</button>
+                        <button type="submit" class="btn btn-primary" ng-click="save()">Save and Publish</button>
                     </div>
                 </div>
             </div>
