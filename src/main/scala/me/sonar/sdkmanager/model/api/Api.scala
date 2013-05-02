@@ -79,16 +79,15 @@ case class NotPredicate(predicate: Predicate) extends Predicate
 abstract class Predicate
 
 
-
-
-case class FactualRequest(query: String, geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, offset: Option[Int] = None)
+case class FactualPlaceRequest(query: Option[String], geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, offset: Option[Int] = None)
 
 case class FactualFilter(category: Option[Seq[String]] = None,
                          region: Option[Seq[String]] = None,
-                         locality: Option[Seq[String]] = None)
+                         locality: Option[Seq[String]] = None,
+                         country: Option[Seq[String]] = None)
 
 case class FactualGeo(lat: Double,
                       lng: Double,
                       radius: Int = 5000)
 
-case class FactualResponse(data: java.util.List[java.util.Map[String, Object]])
+case class FactualPlaceResponse(totalRowCount: Int, includedRows: Int, status: String, data: java.util.List[java.util.Map[String, Object]])

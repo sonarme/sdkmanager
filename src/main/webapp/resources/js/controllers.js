@@ -62,6 +62,15 @@ angular.module('dashboard.controllers', [])
             $scope.clauses.push({});
         }
     }])
-    .controller('GeofenceBuildCtrl', [function () {
+    .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
+        $scope.search = function() {
+            this.limit = 50;
+            $scope.places = Factual.get(this);
+        }
+        $scope.removePlace = function() {
 
+        }
+        $scope.showResultsTable = function() {
+            return $scope.places !== undefined;
+        }
     }]);

@@ -11,5 +11,5 @@ angular.module('dashboard.services', ['ngResource'])
         return $resource('/api/campaigns/:campaignId', {}, {})
     })
     .factory('Factual', function ($resource) {
-        return $resource('stubs/factual/:search.json', {}, {})
+        return $resource('/api/factual', {}, {})
     })
