@@ -99,14 +99,67 @@ angular.module('dashboard.controllers', [])
 
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
-        $scope.search = function () {
-            this.limit = 50;
-            $scope.places = Factual.get(this);
-        }
-        $scope.removePlace = function () {
 
+        $scope.myPlaces = [];
+        $scope.bounds = new google.maps.LatLngBounds();
+
+        $scope.mapOptions = {
+            center: new google.maps.LatLng(40.745394, -73.9870),
+            zoom: 15,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+
+        function addMarker(place) {
+            var marker = new google.maps.Marker({
+                map: $scope.myMap,
+                position: new google.maps.LatLng(place.latitude, place.longitude)
+            });
+            $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
+            place.marker = marker;
+            $scope.myPlaces.push(place);
+            google.maps.event.addListener(marker, 'click', function () {
+                $scope.currentMarker = marker;
+                $scope.currentPlace = place;
+                $scope.myInfoWindow.open($scope.myMap, marker);
+            });
         }
+        $scope.removePlace = function() {
+
+        function resetMap() {
+            while($scope.myPlaces.length) {
+                $scope.myPlaces.pop().marker.setMap(null);
+            }
+            $scope.bounds = new google.maps.LatLngBounds();
+        }
+
+        $scope.search = function () {
+            resetMap();
+            $scope.factual.limit = 20;
+            Factual.get($scope.factual, function (data) {
+                $scope.placesData = data;
+                var places = data.data;
+                for (var i = 0; i < places.length; i++) {
+                    if(places[i].latitude !== undefined || places[i].longitude !== undefined)
+                        addMarker(places[i]);
+                }
+                $scope.myMap.fitBounds($scope.bounds);
+            }, function (error) {
+                alert(error);
+            });
+        }
+
         $scope.showResultsTable = function () {
-            return $scope.places !== undefined;
+            return $scope.placesData !== undefined;
         }
+
+        $scope.panToPlace = function(place) {
+            $scope.myMap.panTo(new google.maps.LatLng(place.latitude, place.longitude));
+            google.maps.event.trigger(place.marker, 'click');
+        }
+
+        $scope.removePlace = function(index) {
+            var place = $scope.myPlaces.splice(index, 1);
+            place[0].marker.setMap(null);
+        }
+
     }]);
