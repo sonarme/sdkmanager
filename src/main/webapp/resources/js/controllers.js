@@ -123,7 +123,6 @@ angular.module('dashboard.controllers', [])
                 $scope.myInfoWindow.open($scope.myMap, marker);
             });
         }
-        $scope.removePlace = function() {
 
         function resetMap() {
             while($scope.myPlaces.length) {
