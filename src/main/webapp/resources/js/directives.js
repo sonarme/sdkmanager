@@ -48,5 +48,50 @@ angular.module('dashboard.directives', [])
                     });
                 }
             };
-        }]);
+        }])
+
+    .directive('dateAfter', function () {
+        return {
+            // restrict to an attribute type.
+            restrict: 'A',
+            require: 'ngModel',
+            // scope = the parent scope
+            // elem = the element the directive is on
+            // attr = a dictionary of attributes on the element
+            // ctrl = the controller for ngModel.
+            link: function ($scope, elem, attr, ctrl) {
+                alert(JSON.stringify($scope.startDate, undefined, 2));
+                alert(JSON.stringify($scope.endDate, undefined, 2));
+                // add a parser that will process each time the value is
+                // parsed into the model when the user updates it.
+                ctrl.$parsers.unshift(function (value) {
+
+                    var beforeDate = $scope[attr.dateAfter];
+                    alert(beforeDate);
+                    var afterDate = $scope[attr.ngModel];
+                    alert(afterDate);
+                    ctrl.$setValidity('dateAfter', true);
+
+                    // if it's valid, return the value to the model,
+                    // otherwise return undefined.
+                    return true ? value : undefined;
+                });
+
+                // add a formatter that will process each time the value
+                // is updated on the DOM element.
+                ctrl.$formatters.unshift(function (value) {
+                    alert($scope);
+                    var beforeDate = $scope[attr.dateAfter];
+                    alert(beforeDate);
+                    var afterDate = $scope[attr.ngModel];
+                    alert(afterDate);
+                    // validate.
+                    ctrl.$setValidity('dateAfter', true);
+
+                    // return the value or nothing will be written to the DOM.
+                    return value;
+                });
+            }
+        };
+    });
 

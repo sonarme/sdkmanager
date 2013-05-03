@@ -4,6 +4,7 @@
 
 angular.module('dashboard.controllers', [])
     .controller('MarketingBuild', ['$scope', 'Campaign', function ($scope, Campaign) {
+        $scope.campaign = {};
         $scope.predicate = 'and';
         $scope.attributes = [
 
@@ -30,7 +31,6 @@ angular.module('dashboard.controllers', [])
             {name: 'ever', id: -1}
         ];
         $scope.frequencyCap = $scope.frequencyCaps[$scope.frequencyCaps.length - 1];
-        $scope.frequencyCapEnabled = true;
         $scope.compareOps = {
             'c': [
                 {name: 'equals', id: 'EQUAL'},
@@ -73,19 +73,36 @@ angular.module('dashboard.controllers', [])
         $scope.save = function () {
             var campaign = new Campaign($scope.campaign);
             campaign.clauses = $scope.clauses;
+            campaign.attributes = $scope.attributes;
+            campaign.geofenceEntries = $scope.geofenceEntries;
+            campaign.dowSelected = $scope.dowSelected;
+            campaign.frequencyCap = $scope.frequencyCap;
             campaign.$save();
         };
         $scope.removeClause = function (clause) {
             $scope.clauses.splice($scope.clauses.indexOf(clause), 1);
         }
         $scope.createClause = function () {
-            $scope.clauses.push({});
+            $scope.clauses.push(
+                {attribute: $scope.attributes[0],
+                    compareOp: $scope.compareOps[$scope.attributes[0].type][0],
+                    value: $scope.attributes[0].options[0]
+                });
+        }
+        $scope.isDowSelected = function () {
+            for (var dow in $scope.dowSelected) {
+                if ($scope.dowSelected[dow]) return true;
+            }
+            return false;
         }
         $scope.removeGeofenceEntry = function (ga) {
             $scope.geofenceEntries.splice($scope.geofenceEntries.indexOf(ga), 1);
         }
         $scope.addGeofenceEntry = function () {
-            $scope.geofenceEntries.push({});
+            $scope.geofenceEntries.push({
+                geofenceAction: $scope.geofenceActions[0],
+                geofenceList: $scope.geofenceLists[0]
+            });
         }
         $scope.refreshDowAll = function () {
             for (var i = 1; i <= 7; ++i)
@@ -94,6 +111,10 @@ angular.module('dashboard.controllers', [])
         $scope.allDowSelected = function () {
             for (var i = 1; i <= 7; ++i)
                 if (!$scope.dowSelected[i]) return false;
+            return true;
+        }
+        $scope.dateAfterStartDate = function (endDate) {
+            alert(endDate > $scope.campaign.startDate);
             return true;
         }
 
