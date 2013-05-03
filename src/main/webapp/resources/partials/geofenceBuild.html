@@ -23,6 +23,7 @@
             <caption>Displaying {{myPlaces.length}} of {{placesData.totalRowCount}}</caption>
             <thead>
             <tr>
+                <th></th>
                 <th>Name</th>
                 <th>Address</th>
                 <th>Locality</th>
@@ -30,6 +31,7 @@
             </tr>
             <tbody>
             <tr ng-repeat="place in myPlaces">
+                <td><input type="checkbox" ng-model="place.selected"></td>
                 <td ng-click="panToPlace(place)">{{place.name}}</td>
                 <td ng-click="panToPlace(place)">{{place.address}}</td>
                 <td ng-click="panToPlace(place)">{{place.locality}}</td>
