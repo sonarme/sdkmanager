@@ -4,11 +4,13 @@
 
 angular.module('dashboard.controllers', [])
     .controller('MarketingBuild', ['$scope', 'Campaign', function ($scope, Campaign) {
-
         $scope.predicate = 'and';
         $scope.attributes = [
-            {name: 'Gender', id: 'gender'},
-            {name: 'Income', id: 'income'}
+
+            {name: 'Gender', id: 'gender', group: 'Attribute', type: 'c', options: ['male', 'female']},
+            {name: 'Income', id: 'income', group: 'Attribute', type: 'c', options: ['50k', '100k']},
+            {name: 'Visits', id: 'visits', group: 'Visits', type: 'n'}
+
         ];
         $scope.dows = [
             {name: 'Monday', id: 2},
@@ -19,35 +21,41 @@ angular.module('dashboard.controllers', [])
             {name: 'Saturday', id: 7},
             {name: 'Sunday', id: 1}
         ];
+        var hourMs = 60 * 60 * 1000
         $scope.frequencyCaps = [
-            {name: 'per hour', id: 'hour'},
-            {name: 'per day', id: 'day'},
-            {name: 'per week', id: 'week'},
-            {name: 'per month', id: 'month'},
-            {name: 'ever', id: 'ever'}
+            {name: 'per hour', id: hourMs},
+            {name: 'per day', id: 24 * hourMs},
+            {name: 'per week', id: 7 * 24 * hourMs},
+            {name: 'per month', id: 30 * 7 * 24 * hourMs},
+            {name: 'ever', id: -1}
         ];
         $scope.frequencyCap = $scope.frequencyCaps[$scope.frequencyCaps.length - 1];
         $scope.frequencyCapEnabled = true;
-        $scope.compareOps = [
-            {name: 'equals', id: 'EQUAL'},
-            {name: 'does not equal', id: 'NOTEQUAL'},
-            {name: 'less than', id: 'LESS'},
-            {name: 'less than or equal', id: 'LESSOREQUAL'},
-            {name: 'greater than', id: 'GREATER'},
-            {name: 'greater than or equal', id: 'GREATEROREQUAL'}
-        ];
+        $scope.compareOps = {
+            'c': [
+                {name: 'equals', id: 'EQUAL'},
+                {name: 'does not equal', id: 'NOTEQUAL'}
+            ],
+            'n': [
+                {name: 'equals', id: 'EQUAL'},
+                {name: 'does not equal', id: 'NOTEQUAL'},
+                {name: 'less than', id: 'LESS'},
+                {name: 'less than or equal', id: 'LESSOREQUAL'},
+                {name: 'greater than', id: 'GREATER'},
+                {name: 'greater than or equal', id: 'GREATEROREQUAL'}
+            ]
+        }
         $scope.geofenceActions = [
-            {name: "Arriving at", id: "entering"},
-            {name: "Leaving", id: "leaving"}
+            {name: "Arriving at", id: true},
+            {name: "Leaving", id: false}
         ]
         $scope.geofenceLists = [
             {name: "Bla", id: "bla"}
         ]
         $scope.clauses = [
-            {attribute: "", compareOp: ""}
+
         ];
         $scope.geofenceEntries = [
-            {}
         ];
         $scope.dowSelected = {
         };

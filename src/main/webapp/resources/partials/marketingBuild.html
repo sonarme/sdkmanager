@@ -70,13 +70,19 @@
                             <div ng-show="$index>1" class="span2">{{predicate}}</div>
 
                             <select
-                                    ng-model="attribute"
-                                    ng-options="a.name for a in attributes"
-                                    class="span2"></select>
+                                    ng-model="clause.attribute"
+                                    ng-options="a.name group by a.group for a in attributes"
+                                    class="span2" ng-change="clause.value=null"></select>
                             <select
                                     ng-model="clause.compareOp"
-                                    ng-options="c.name for c in compareOps" class="span2"></select>
-                            <input type="text" ng-model="clause.value" class="span3"/>
+                                    ng-options="c.name for c in compareOps[clause.attribute.type]"
+                                    class="span2"></select>
+                            <input type="text" ng-model="clause.value" class="span3"
+                                   ng-show="clause.attribute.type=='n'"/>
+                            <select
+                                    ng-model="clause.value"
+                                    ng-options="o for o in clause.attribute.options" class="span3"
+                                    ng-show="clause.attribute.type!='n'"></select>
                             <a class="icon-remove" ng-click="removeClause(clause)"></a>
                         </div>
                         <a class="icon-plus-sign" ng-click="createClause()"></a>
