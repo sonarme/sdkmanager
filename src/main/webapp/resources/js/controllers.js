@@ -113,11 +113,6 @@ angular.module('dashboard.controllers', [])
                 if (!$scope.dowSelected[i]) return false;
             return true;
         }
-        $scope.dateAfterStartDate = function (endDate) {
-            alert(endDate > $scope.campaign.startDate);
-            return true;
-        }
-
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
 
@@ -147,7 +142,7 @@ angular.module('dashboard.controllers', [])
         }
 
         function resetMap() {
-            while($scope.myPlaces.length) {
+            while ($scope.myPlaces.length) {
                 $scope.myPlaces.pop().marker.setMap(null);
             }
             $scope.bounds = new google.maps.LatLngBounds();
@@ -160,7 +155,7 @@ angular.module('dashboard.controllers', [])
                 $scope.placesData = data;
                 var places = data.data;
                 for (var i = 0; i < places.length; i++) {
-                    if(places[i].latitude !== undefined || places[i].longitude !== undefined)
+                    if (places[i].latitude !== undefined || places[i].longitude !== undefined)
                         addMarker(places[i]);
                 }
                 $scope.myMap.fitBounds($scope.bounds);
@@ -173,17 +168,17 @@ angular.module('dashboard.controllers', [])
             return $scope.placesData !== undefined;
         }
 
-        $scope.panToPlace = function(place) {
+        $scope.panToPlace = function (place) {
             $scope.myMap.panTo(new google.maps.LatLng(place.latitude, place.longitude));
             google.maps.event.trigger(place.marker, 'click');
         }
 
-        $scope.removePlace = function(index) {
+        $scope.removePlace = function (index) {
             var place = $scope.myPlaces.splice(index, 1);
             place[0].marker.setMap(null);
         }
 
-        $scope.addToList = function() {
+        $scope.addToList = function () {
             $scope.placesAdded.push.apply($scope.placesAdded, $scope.myPlaces);
         }
 
