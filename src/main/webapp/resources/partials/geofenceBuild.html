@@ -10,7 +10,8 @@
                 <input class="input-medium" type="text" ng-model="factual.region" placeholder='NY, TX'>
                 <input class="input-medium" type="text" ng-model="factual.locality" placeholder='New York, Austin'>
                 <input class="input-medium" type="text" ng-model="factual.category" placeholder='bar,restaurant'>
-                <input type="submit" id="submit" value="Submit"/>
+                <input type="submit" value="Submit"/>
+                <button class="btn btn-primary" type="button" ng-click="addToList()">Add to List</button>
             </fieldset>
         </form>
     </div>
@@ -53,5 +54,19 @@
         <div id="map_canvas" ui-map="myMap" class="map" ui-options="mapOptions">
 
         </div>
+    </div>
+</div>
+
+<div class="row-fluid">
+    <div class="span6">
+        <form class="form-horizontal" ng-submit="saveList(list.name)">
+            <fieldset>
+                <legend>Build</legend>
+                <input type="text" ng-model="list.name" placeholder="NYC FastFood">
+                <label>({{placesAdded.length}})</label>
+                <button class="btn" type="button" ng-click="clearList()">Clear</button>
+                <button class="btn btn-primary" type="submit">Save</button>
+            </fieldset>
+        </form>
     </div>
 </div>

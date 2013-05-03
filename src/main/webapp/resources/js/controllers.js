@@ -101,6 +101,7 @@ angular.module('dashboard.controllers', [])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
 
         $scope.myPlaces = [];
+        $scope.placesAdded = [];
         $scope.bounds = new google.maps.LatLngBounds();
 
         $scope.mapOptions = {
@@ -161,4 +162,15 @@ angular.module('dashboard.controllers', [])
             place[0].marker.setMap(null);
         }
 
+        $scope.addToList = function() {
+            $scope.placesAdded.push.apply($scope.placesAdded, $scope.myPlaces);
+        }
+
+        $scope.clearList = function () {
+            $scope.placesAdded = [];
+        }
+
+        $scope.saveList = function (name) {
+            alert("saved: " + name);
+        }
     }]);
