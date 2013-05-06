@@ -70,10 +70,14 @@ angular.module('dashboard.controllers', [])
         $scope.setPredicate = function (pred) {
             $scope.predicate = pred;
         };
+        function idMap(el) {
+            return el.id;
+        }
+
         $scope.save = function () {
             var campaign = new Campaign($scope.campaign);
-            campaign.clauses = $scope.clauses;
-            campaign.attributes = $scope.attributes;
+            campaign.clauses = $scope.clauses.map(idMap);
+            campaign.attributes = $scope.attributes.map(idMap);
             campaign.geofenceEntries = $scope.geofenceEntries;
             campaign.dowSelected = $scope.dowSelected;
             campaign.frequencyCap = $scope.frequencyCap;
@@ -178,11 +182,11 @@ angular.module('dashboard.controllers', [])
             place[0].marker.setMap(null);
         }
 
-        $scope.addToList = function() {
+        $scope.addToList = function () {
             var place;
-            for(var i=0; i<$scope.myPlaces.length; i++) {
+            for (var i = 0; i < $scope.myPlaces.length; i++) {
                 place = $scope.myPlaces[i];
-                if(place.selected && $scope.placesAdded.indexOf(place) == -1) {
+                if (place.selected && $scope.placesAdded.indexOf(place) == -1) {
                     place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|0000FF");
                     $scope.placesAdded.push(place)
                 }
@@ -191,7 +195,7 @@ angular.module('dashboard.controllers', [])
         }
 
         $scope.clearList = function () {
-            while($scope.placesAdded.length) {
+            while ($scope.placesAdded.length) {
                 $scope.placesAdded.pop().marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|808080");
             }
         }
