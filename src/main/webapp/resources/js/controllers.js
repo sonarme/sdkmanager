@@ -146,10 +146,19 @@ angular.module('dashboard.controllers', [])
         }
 
         function resetMap() {
+            var place;
             while ($scope.myPlaces.length) {
-                $scope.myPlaces.pop().marker.setMap(null);
+                place = $scope.myPlaces.pop();
+                if ($scope.placesAdded.indexOf(place) == -1) {
+                    place.marker.setMap(null);
+                }
             }
-            $scope.bounds = new google.maps.LatLngBounds();
+            $scope.bounds = new google.maps.LatLngBounds(); //reset the bounds
+            for (var i=0; i<$scope.placesAdded.length; i++) {
+                place = $scope.placesAdded[i];
+                $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
+            }
+
         }
 
         $scope.search = function () {
@@ -186,12 +195,11 @@ angular.module('dashboard.controllers', [])
             var place;
             for (var i = 0; i < $scope.myPlaces.length; i++) {
                 place = $scope.myPlaces[i];
-                if (place.selected && $scope.placesAdded.indexOf(place) == -1) {
-                    place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|0000FF");
+                if($scope.placesAdded.indexOf(place) == -1) {
+                    place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4169E1");
                     $scope.placesAdded.push(place)
                 }
             }
-//            $scope.placesAdded.push.apply($scope.placesAdded, $scope.myPlaces);
         }
 
         $scope.clearList = function () {
