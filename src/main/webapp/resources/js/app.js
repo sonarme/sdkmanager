@@ -5,7 +5,8 @@
 angular.module('dashboard', ['ui', 'ui.bootstrap', '$strap.directives', 'dashboard.filters', 'dashboard.services', 'dashboard.directives', 'dashboard.controllers']).
     config(['$routeProvider', function ($routeProvider) {
         $routeProvider
+            .when('/analytics', {templateUrl: 'partials/analytics.html', controller: 'Analytics'})
             .when('/marketingBuild', {templateUrl: 'partials/marketingBuild.html', controller: 'MarketingBuild'})
             .when('/geofenceBuild', {templateUrl: 'partials/geofenceBuild.html', controller: 'GeofenceBuildCtrl'})
-            .otherwise({redirectTo: '/marketingBuild'});
+            .otherwise({redirectTo: '/analytics'});
     }]);

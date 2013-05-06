@@ -3,6 +3,9 @@
 /* Controllers */
 
 angular.module('dashboard.controllers', [])
+    .controller('Analytics', ['$scope', function ($scope) {
+
+    }])
     .controller('MarketingBuild', ['$scope', 'Campaign', 'Geofence', function ($scope, Campaign, Geofence) {
         $scope.campaign = {};
         $scope.predicate = 'and';
