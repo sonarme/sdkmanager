@@ -34,5 +34,9 @@ body {
 }
 
 .map {
-  height: 500px;
+    height: 500px;
+}
+
+.builderrow {
+    margin-bottom: 10px;
 }
