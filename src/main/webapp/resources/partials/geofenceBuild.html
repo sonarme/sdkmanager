@@ -20,7 +20,7 @@
 <div class="row-fluid">
     <div class="span7">
         <table class="table table-striped table-hover" ng-show="showResultsTable()">
-            <caption>Displaying {{myPlaces.length}} of {{placesData.totalRowCount}}</caption>
+            <caption>Displaying {{searchedPlaces.length}} of {{placesData.totalRowCount}}</caption>
             <thead>
             <tr>
                 <!--<th></th>-->
@@ -30,7 +30,7 @@
                 <th></th>
             </tr>
             <tbody>
-            <tr ng-repeat="place in myPlaces">
+            <tr ng-repeat="place in searchedPlaces">
                 <!--<td><input type="checkbox" ng-model="place.selected"></td>-->
                 <td ng-click="panToPlace(place)">{{place.name}}</td>
                 <td ng-click="panToPlace(place)">{{place.address}}</td>

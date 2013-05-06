@@ -119,7 +119,7 @@ angular.module('dashboard.controllers', [])
         }
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
-        $scope.myPlaces = [];
+        $scope.searchedPlaces = [];
         $scope.placesAdded = [];
         $scope.bounds = new google.maps.LatLngBounds();
 
@@ -137,7 +137,7 @@ angular.module('dashboard.controllers', [])
             });
             $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
             place.marker = marker;
-            $scope.myPlaces.push(place);
+            $scope.searchedPlaces.push(place);
             google.maps.event.addListener(marker, 'click', function () {
                 $scope.currentMarker = marker;
                 $scope.currentPlace = place;
@@ -147,8 +147,8 @@ angular.module('dashboard.controllers', [])
 
         function resetMap() {
             var place;
-            while ($scope.myPlaces.length) {
-                place = $scope.myPlaces.pop();
+            while ($scope.searchedPlaces.length) {
+                place = $scope.searchedPlaces.pop();
                 if ($scope.placesAdded.indexOf(place) == -1) {
                     place.marker.setMap(null);
                 }
@@ -187,14 +187,14 @@ angular.module('dashboard.controllers', [])
         }
 
         $scope.removePlace = function (index) {
-            var place = $scope.myPlaces.splice(index, 1);
+            var place = $scope.searchedPlaces.splice(index, 1);
             place[0].marker.setMap(null);
         }
 
         $scope.addToList = function () {
             var place;
-            for (var i = 0; i < $scope.myPlaces.length; i++) {
-                place = $scope.myPlaces[i];
+            for (var i = 0; i < $scope.searchedPlaces.length; i++) {
+                place = $scope.searchedPlaces[i];
                 if ($scope.placesAdded.indexOf(place) == -1) {
                     place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4169E1");
                     $scope.placesAdded.push(place)
