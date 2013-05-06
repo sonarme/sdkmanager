@@ -154,7 +154,7 @@ angular.module('dashboard.controllers', [])
                 }
             }
             $scope.bounds = new google.maps.LatLngBounds(); //reset the bounds
-            for (var i=0; i<$scope.placesAdded.length; i++) {
+            for (var i = 0; i < $scope.placesAdded.length; i++) {
                 place = $scope.placesAdded[i];
                 $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
             }
@@ -195,7 +195,7 @@ angular.module('dashboard.controllers', [])
             var place;
             for (var i = 0; i < $scope.myPlaces.length; i++) {
                 place = $scope.myPlaces[i];
-                if($scope.placesAdded.indexOf(place) == -1) {
+                if ($scope.placesAdded.indexOf(place) == -1) {
                     place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4169E1");
                     $scope.placesAdded.push(place)
                 }
