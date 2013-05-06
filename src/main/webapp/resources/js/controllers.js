@@ -137,7 +137,6 @@ angular.module('dashboard.controllers', [])
             });
             $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
             place.marker = marker;
-            $scope.searchedPlaces.push(place);
             google.maps.event.addListener(marker, 'click', function () {
                 $scope.currentMarker = marker;
                 $scope.currentPlace = place;
@@ -149,7 +148,7 @@ angular.module('dashboard.controllers', [])
             var place;
             while ($scope.searchedPlaces.length) {
                 place = $scope.searchedPlaces.pop();
-                if ($scope.placesAdded.indexOf(place) == -1) {
+                if (!arrayContainsPlace($scope.placesAdded, place)) {
                     place.marker.setMap(null);
                 }
             }
@@ -161,6 +160,13 @@ angular.module('dashboard.controllers', [])
 
         }
 
+        function arrayContainsPlace(array, place) {
+            var index = array.map(function (p) {
+                return p.factual_id;
+            }).indexOf(place.factual_id);
+            return index > -1;
+        }
+
         $scope.search = function () {
             resetMap();
             $scope.factual.limit = 20;
@@ -168,8 +174,12 @@ angular.module('dashboard.controllers', [])
                 $scope.placesData = data;
                 var places = data.data;
                 for (var i = 0; i < places.length; i++) {
-                    if (places[i].latitude !== undefined || places[i].longitude !== undefined)
-                        addMarker(places[i]);
+                    if ((places[i].latitude !== undefined || places[i].longitude !== undefined)) {
+                        if(!arrayContainsPlace($scope.placesAdded, places[i]))
+                            addMarker(places[i]);
+
+                        $scope.searchedPlaces.push(places[i]);
+                    }
                 }
                 $scope.myMap.fitBounds($scope.bounds);
             }, function (error) {
@@ -195,7 +205,7 @@ angular.module('dashboard.controllers', [])
             var place;
             for (var i = 0; i < $scope.searchedPlaces.length; i++) {
                 place = $scope.searchedPlaces[i];
-                if ($scope.placesAdded.indexOf(place) == -1) {
+                if (!arrayContainsPlace($scope.placesAdded, place)) {
                     place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4169E1");
                     $scope.placesAdded.push(place)
                 }
