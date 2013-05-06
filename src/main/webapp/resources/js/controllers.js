@@ -119,7 +119,7 @@ angular.module('dashboard.controllers', [])
         }
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
-        $scope.myPlaces = [];
+        $scope.searchedPlaces = [];
         $scope.placesAdded = [];
         $scope.bounds = new google.maps.LatLngBounds();
 
@@ -137,7 +137,6 @@ angular.module('dashboard.controllers', [])
             });
             $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
             place.marker = marker;
-            $scope.myPlaces.push(place);
             google.maps.event.addListener(marker, 'click', function () {
                 $scope.currentMarker = marker;
                 $scope.currentPlace = place;
@@ -146,10 +145,26 @@ angular.module('dashboard.controllers', [])
         }
 
         function resetMap() {
-            while ($scope.myPlaces.length) {
-                $scope.myPlaces.pop().marker.setMap(null);
+            var place;
+            while ($scope.searchedPlaces.length) {
+                place = $scope.searchedPlaces.pop();
+                if (!arrayContainsPlace($scope.placesAdded, place)) {
+                    place.marker.setMap(null);
+                }
             }
-            $scope.bounds = new google.maps.LatLngBounds();
+            $scope.bounds = new google.maps.LatLngBounds(); //reset the bounds
+            for (var i = 0; i < $scope.placesAdded.length; i++) {
+                place = $scope.placesAdded[i];
+                $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
+            }
+
+        }
+
+        function arrayContainsPlace(array, place) {
+            var index = array.map(function (p) {
+                return p.factual_id;
+            }).indexOf(place.factual_id);
+            return index > -1;
         }
 
         $scope.search = function () {
@@ -159,8 +174,12 @@ angular.module('dashboard.controllers', [])
                 $scope.placesData = data;
                 var places = data.data;
                 for (var i = 0; i < places.length; i++) {
-                    if (places[i].latitude !== undefined || places[i].longitude !== undefined)
-                        addMarker(places[i]);
+                    if ((places[i].latitude !== undefined || places[i].longitude !== undefined)) {
+                        if(!arrayContainsPlace($scope.placesAdded, places[i]))
+                            addMarker(places[i]);
+
+                        $scope.searchedPlaces.push(places[i]);
+                    }
                 }
                 $scope.myMap.fitBounds($scope.bounds);
             }, function (error) {
@@ -178,20 +197,19 @@ angular.module('dashboard.controllers', [])
         }
 
         $scope.removePlace = function (index) {
-            var place = $scope.myPlaces.splice(index, 1);
+            var place = $scope.searchedPlaces.splice(index, 1);
             place[0].marker.setMap(null);
         }
 
         $scope.addToList = function () {
             var place;
-            for (var i = 0; i < $scope.myPlaces.length; i++) {
-                place = $scope.myPlaces[i];
-                if (place.selected && $scope.placesAdded.indexOf(place) == -1) {
-                    place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|0000FF");
+            for (var i = 0; i < $scope.searchedPlaces.length; i++) {
+                place = $scope.searchedPlaces[i];
+                if (!arrayContainsPlace($scope.placesAdded, place)) {
+                    place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4169E1");
                     $scope.placesAdded.push(place)
                 }
             }
-//            $scope.placesAdded.push.apply($scope.placesAdded, $scope.myPlaces);
         }
 
         $scope.clearList = function () {
