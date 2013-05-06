@@ -115,7 +115,6 @@ angular.module('dashboard.controllers', [])
         }
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
-
         $scope.myPlaces = [];
         $scope.placesAdded = [];
         $scope.bounds = new google.maps.LatLngBounds();
@@ -129,6 +128,7 @@ angular.module('dashboard.controllers', [])
         function addMarker(place) {
             var marker = new google.maps.Marker({
                 map: $scope.myMap,
+                icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|808080",
                 position: new google.maps.LatLng(place.latitude, place.longitude)
             });
             $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
@@ -178,12 +178,22 @@ angular.module('dashboard.controllers', [])
             place[0].marker.setMap(null);
         }
 
-        $scope.addToList = function () {
-            $scope.placesAdded.push.apply($scope.placesAdded, $scope.myPlaces);
+        $scope.addToList = function() {
+            var place;
+            for(var i=0; i<$scope.myPlaces.length; i++) {
+                place = $scope.myPlaces[i];
+                if(place.selected && $scope.placesAdded.indexOf(place) == -1) {
+                    place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|0000FF");
+                    $scope.placesAdded.push(place)
+                }
+            }
+//            $scope.placesAdded.push.apply($scope.placesAdded, $scope.myPlaces);
         }
 
         $scope.clearList = function () {
-            $scope.placesAdded = [];
+            while($scope.placesAdded.length) {
+                $scope.placesAdded.pop().marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|808080");
+            }
         }
 
         $scope.saveList = function (name) {
