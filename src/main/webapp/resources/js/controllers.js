@@ -3,14 +3,13 @@
 /* Controllers */
 
 angular.module('dashboard.controllers', [])
-    .controller('MarketingBuild', ['$scope', 'Campaign', function ($scope, Campaign) {
+    .controller('MarketingBuild', ['$scope', 'Campaign', 'Geofence', function ($scope, Campaign, Geofence) {
         $scope.campaign = {};
         $scope.predicate = 'and';
         $scope.attributes = [
 
             {name: 'Gender', id: 'gender', group: 'Attribute', type: 'c', options: ['male', 'female']},
-            {name: 'Income', id: 'income', group: 'Attribute', type: 'c', options: ['50k', '100k']},
-            {name: 'Visits', id: 'visits', group: 'Visits', type: 'n'}
+            {name: 'Income', id: 'income', group: 'Attribute', type: 'c', options: ['50k', '100k']}
 
         ];
         $scope.dows = [
@@ -49,9 +48,20 @@ angular.module('dashboard.controllers', [])
             {name: "Arriving at", id: true},
             {name: "Leaving", id: false}
         ]
-        $scope.geofenceLists = [
-            {name: "Bla", id: "bla"}
+        $scope.dateTimeOptions = [
+            {name: "ASAP", id: true},
+            {name: "Specific date & time", id: false}
         ]
+        $scope.asap = $scope.dateTimeOptions[0];
+        Geofence.query(null, function (data) {
+            $scope.geofenceLists = data;
+            for (var i = 0; i < data.length; ++i) {
+                $scope.attributes.push(
+                    {name: "Visits of " + data[i].name, id: data[i].id, group: 'Visits', type: 'n'}
+                )
+            }
+        }, function (data) {
+        })
         $scope.clauses = [
 
         ];
@@ -90,6 +100,7 @@ angular.module('dashboard.controllers', [])
             $scope.clauses.push(
                 {attribute: $scope.attributes[0],
                     compareOp: $scope.compareOps[$scope.attributes[0].type][0],
+                    values: {},
                     value: $scope.attributes[0].options[0]
                 });
         }
@@ -116,6 +127,22 @@ angular.module('dashboard.controllers', [])
             for (var i = 1; i <= 7; ++i)
                 if (!$scope.dowSelected[i]) return false;
             return true;
+        }
+        $scope.attributeText = function (values) {
+            var value = "";
+            for (var k in values) {
+                if (values[k]) value += value === "" ? k : ", " + k;
+            }
+            return value === "" ? 'None' : value;
+        }
+        $scope.remainingAttributes = function (currentAttribute) {
+            var used = {};
+            for (var i = 0; i < $scope.clauses.length; ++i) {
+                used[$scope.clauses[i].attribute.id] = true;
+            }
+            return $scope.attributes.filter(function (obj) {
+                return obj.id === currentAttribute.id || !used[obj.id];
+            })
         }
     }])
     .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
@@ -175,7 +202,7 @@ angular.module('dashboard.controllers', [])
                 var places = data.data;
                 for (var i = 0; i < places.length; i++) {
                     if ((places[i].latitude !== undefined || places[i].longitude !== undefined)) {
-                        if(!arrayContainsPlace($scope.placesAdded, places[i]))
+                        if (!arrayContainsPlace($scope.placesAdded, places[i]))
                             addMarker(places[i]);
 
                         $scope.searchedPlaces.push(places[i]);

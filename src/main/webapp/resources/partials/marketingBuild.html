@@ -10,7 +10,7 @@
 
                 <div class="controls">
                     <input type="text" name="name" ng-model="campaign.name"
-                           placeholder="Type your campaign name here"
+                           placeholder="Campaign name"
                            required>
                             <span class="input-help"
                                   ng-show="form.name.$dirty && form.name.$invalid">Invalid name</span>
@@ -21,7 +21,7 @@
 
                 <div class="controls">
                     <input type="text" name="message" ng-model="campaign.message"
-                           placeholder="Type the short form of your message here" required>
+                           placeholder="Short form of your message" maxlength="24" required>
                         <span class="input-help"
                               ng-show="form.message.$dirty && form.message.$invalid">Invalid message</span>
                 </div>
@@ -30,14 +30,14 @@
                 <label class="control-label">Full text</label>
 
                 <div class="controls">
-                    <textarea rows="3" name="text" ng-model="campaign.text"></textarea>
+                    <textarea rows="3" name="text" placeholder="Your message" ng-model="campaign.text"></textarea>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label">URL</label>
 
                 <div class="controls">
-                    <input type="url" name="url" ng-model="campaign.url" placeholder="http://...">
+                    <input type="url" name="url" ng-model="campaign.url" placeholder="http://company.com/campaign">
                     <span class="input-help" ng-show="form.url.$dirty && form.url.$invalid">Invalid URL</span>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                     <div style="vertical-align: top; width:48px;float:left">
                         <img src="img/android_icon.png" width="48">
                     </div>
-                    <div style="float:right;width:215px;margin-left:7px;margin-top:5px"><span
+                    <div style="float:right;width:208px;margin-left:7px;margin-top:5px;margin-right:7px"><span
                             style="font-family: 'Roboto', sans-serif; font-weight: 400; color: #EBEBEB;font-size: 14px;">{{campaign.message}}</span></br>
                         <span style="font-family: 'Roboto', sans-serif; font-weight: 400; color: #959595;margin-top:5px;font-size:12px">{{campaign.text}}</span>
                     </div>
@@ -91,24 +91,48 @@
             </div>
             <div ui-if="$index>1" class="span2" style="text-align:center"><span
                     class="label">{{predicate}}</span></div>
+            <div class="span2">
+                <select
+                        ng-model="clause.attribute"
+                        ng-options="a.name group by a.group for a in attributes"
+                        ng-change="clause.value=clause.attribute.options[0];clause.compareOp=compareOps[clause.attribute.type][0]"
+                        required></select></div>
+            <div class="span2">
+                <span ng-show="clause.attribute.type!='n'">is one of</span>
+                <select
+                        ng-show="clause.attribute.type=='n'"
+                        ng-model="clause.compareOp"
+                        ng-options="c.name for c in compareOps[clause.attribute.type]"
+                        required></select>
+            </div>
+            <div class="span2">
+                <input type="text" ng-model="clause.value"
+                       ng-show="clause.attribute.type=='n'" ng-required="clause.attribute.type=='n'"/>
 
-            <select
-                    ng-model="clause.attribute"
-                    ng-options="a.name group by a.group for a in attributes"
-                    class="span2"
-                    ng-change="clause.value=clause.attribute.options[0];clause.compareOp=compareOps[clause.attribute.type][0]"
-                    required></select>
-            <select
-                    ng-model="clause.compareOp"
-                    ng-options="c.name for c in compareOps[clause.attribute.type]"
-                    class="span2" required></select>
-            <input type="text" ng-model="clause.value" class="span2"
-                   ng-show="clause.attribute.type=='n'" ng-required="clause.attribute.type=='n'"/>
-            <select
-                    ng-model="clause.value"
-                    ng-options="o for o in clause.attribute.options" class="span2"
-                    ng-show="clause.attribute.type!='n'"
-                    ng-required="clause.attribute.type!='n'"></select>
+
+                <div class="dropdown" ng-show="clause.attribute.type!='n'">
+                    <button type="button" class="btn dropdown-toggle-keep"
+                            style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{
+                        attributeText(clause.values)}} <b
+                                class="caret"></b></button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="o in clause.attribute.options">
+                            <label>
+                                <input type="checkbox" value="{{o.id}}"
+                                       ng-model="clause.values[o]">
+                                <!--ng-required="!isDowSelected()"-->
+
+                                <span>{{o}}</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!--  <select
+                      ng-model="clause.value"
+                      ng-options="o for o in clause.attribute.options" class="span2"
+                      ng-show="clause.attribute.type!='n'"
+                      ng-required="clause.attribute.type!='n'"></select>-->
             <a class="icon-remove" ng-click="removeClause(clause)"></a>
         </ng-form>
     </div>
@@ -140,75 +164,81 @@
 </fieldset>
 <fieldset>
     <legend>When</legend>
-
     <div class="row-fluid">
-        <div class="span3">Start Date</div>
-        <div class="span3">End Date</div>
+        <select
+                ng-model="asap"
+                ng-options="dto.name for dto in dateTimeOptions" required></select>
     </div>
-    <div class="row-fluid">
-        <div class="span3">
-            <div class="control-group input-append">
-                <input type="text" name="startDate" ng-model="campaign.startDate"
-                       data-date-format="mm/dd/yyyy"
-                       bs-datepicker required>
-                <button type="button" class="btn" data-toggle="datepicker"><i
-                        class="icon-calendar"></i></button>
+    <div ng-show="!(asap.id)">
+        <div class="row-fluid">
+            <div class="span3">Start Date</div>
+            <div class="span3">End Date</div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="control-group input-append">
+                    <input type="text" name="startDate" ng-model="campaign.startDate"
+                           data-date-format="mm/dd/yyyy"
+                           bs-datepicker required>
+                    <button type="button" class="btn" data-toggle="datepicker"><i
+                            class="icon-calendar"></i></button>
+                </div>
+            </div>
+            <div class="span3">
+                <div class="control-group input-append">
+                    <input type="text" name="endDate" ng-model="campaign.endDate"
+                           data-date-format="mm/dd/yyyy" ui-validate="'$value >= campaign.startDate' "
+                           ui-validate-watch=" 'campaign.startDate' "
+                           bs-datepicker required>
+                    <button type="button" class="btn" data-toggle="datepicker"><i
+                            class="icon-calendar"></i></button>
+                </div>
             </div>
         </div>
-        <div class="span3">
-            <div class="control-group input-append">
-                <input type="text" name="endDate" ng-model="campaign.endDate"
-                       data-date-format="mm/dd/yyyy" ui-validate="'$value >= campaign.startDate' "
-                       ui-validate-watch=" 'campaign.startDate' "
-                       bs-datepicker required>
-                <button type="button" class="btn" data-toggle="datepicker"><i
-                        class="icon-calendar"></i></button>
-            </div>
+        <div class="row-fluid">
+            <div class="span3">Day Range</div>
+            <div class="span3">Start Time</div>
+            <div class="span3">End Time</div>
         </div>
-    </div>
-    <div class="row-fluid">
-        <div class="span3">Day Range</div>
-        <div class="span3">Start Time</div>
-        <div class="span3">End Time</div>
-    </div>
-    <div class="row-fluid">
-        <div class="span3">
-            <div class="dropdown">
-                <button type="button" class="btn dropdown-toggle-keep">{{ allDowSelected() && 'All
-                    Week' || 'Specific Days'}} <b
-                            class="caret"></b></button>
-                <ul class="dropdown-menu">
-                    <li ng-repeat="dow in dows">
-                        <label>
-                            <input type="checkbox" name="dowGroup" value="{{dow.id}}"
-                                   ng-model="dowSelected[dow.id]"
-                                   ng-required="!isDowSelected()">
-                            <span>{{dow.name}}</span>
-                        </label>
-                    </li>
-                    <li><label>
-                        <input type="checkbox" name="dowGroup" value="all"
-                               ng-model="dowAll"
-                               ng-change="refreshDowAll()" ng-required="!isDowSelected()">
-                        <span>All</span>
-                    </label></li>
-                </ul>
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="dropdown">
+                    <button type="button" class="btn dropdown-toggle-keep">{{ allDowSelected() && 'All
+                        Week' || 'Specific Days'}} <b
+                                class="caret"></b></button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="dow in dows">
+                            <label>
+                                <input type="checkbox" name="dowGroup" value="{{dow.id}}"
+                                       ng-model="dowSelected[dow.id]"
+                                       ng-required="!isDowSelected()">
+                                <span>{{dow.name}}</span>
+                            </label>
+                        </li>
+                        <li><label>
+                            <input type="checkbox" name="dowGroup" value="all"
+                                   ng-model="dowAll"
+                                   ng-change="refreshDowAll()" ng-required="!isDowSelected()">
+                            <span>All</span>
+                        </label></li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <div class="span3">
-            <div class="control-group input-append">
-                <input type="text" name="startTime" ng-model="campaign.startTime" bs-timepicker
-                       required>
-                <button type="button" class="btn" data-toggle="timepicker"><i
-                        class="icon-time"></i></button>
+            <div class="span3">
+                <div class="control-group input-append">
+                    <input type="text" name="startTime" ng-model="campaign.startTime" bs-timepicker
+                           required>
+                    <button type="button" class="btn" data-toggle="timepicker"><i
+                            class="icon-time"></i></button>
+                </div>
             </div>
-        </div>
-        <div class="span3">
-            <div class="control-group input-append">
-                <input type="text" name="endTime" ng-model="campaign.endTime" bs-timepicker
-                       required>
-                <button type="button" class="btn" data-toggle="timepicker"><i
-                        class="icon-time"></i></button>
+            <div class="span3">
+                <div class="control-group input-append">
+                    <input type="text" name="endTime" ng-model="campaign.endTime" bs-timepicker
+                           required>
+                    <button type="button" class="btn" data-toggle="timepicker"><i
+                            class="icon-time"></i></button>
+                </div>
             </div>
         </div>
     </div>
