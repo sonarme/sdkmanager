@@ -201,8 +201,12 @@ angular.module('dashboard.controllers', [])
             resetMap();
             $scope.factual.limit = 20;
             Factual.get($scope.factual, function (data) {
-                $scope.placesData = data;
-                var places = data.data;
+                $scope.placesData = data.places;
+                var places = data.places.data;
+                var facets = data.facets.data;
+                for(var key in facets) {
+                    $scope['typeahead_' + key] = Object.keys(facets[key]);
+                }
                 for (var i = 0; i < places.length; i++) {
                     if ((places[i].latitude !== undefined || places[i].longitude !== undefined)) {
                         if (!arrayContainsPlace($scope.placesAdded, places[i]))
