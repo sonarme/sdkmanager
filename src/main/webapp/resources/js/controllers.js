@@ -203,7 +203,7 @@ angular.module('dashboard.controllers', [])
                 var places = data.places.data;
                 var facets = data.facets.data;
                 for (var key in facets) {
-                    $scope['typeahead_' + key] = Object.keys(facets[key]);
+                    $scope['typeahead_' + key] = Object.keys(facets[key]).sort();
                 }
                 var place;
                 for (var i = 0; i < places.length; i++) {
@@ -235,8 +235,8 @@ angular.module('dashboard.controllers', [])
 
         $scope.addToList = function () {
             var place;
-            for (var i = 0; i < $scope.searchedPlaces.length; i++) {
-                place = $scope.searchedPlaces[i];
+            while ($scope.searchedPlaces.length) {
+                place = $scope.searchedPlaces.pop();
                 if (!arrayContainsPlace($scope.placesAdded, place)) {
                     place.marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|4169E1");
                     $scope.placesAdded.push(place)
