@@ -159,10 +159,10 @@ angular.module('dashboard.controllers', [])
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 
-        function addMarker(place) {
+        function addMarker(place, selected) {
             var marker = new google.maps.Marker({
                 map: $scope.myMap,
-                icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|808080",
+                icon: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + (selected ? "4169E1" : "808080"),
                 position: new google.maps.LatLng(place.latitude, place.longitude)
             });
             $scope.bounds.extend(new google.maps.LatLng(place.latitude, place.longitude));
@@ -209,8 +209,7 @@ angular.module('dashboard.controllers', [])
                 }
                 for (var i = 0; i < places.length; i++) {
                     if ((places[i].latitude !== undefined || places[i].longitude !== undefined)) {
-                        if (!arrayContainsPlace($scope.placesAdded, places[i]))
-                            addMarker(places[i]);
+                        addMarker(places[i], arrayContainsPlace($scope.placesAdded, places[i]));
 
                         $scope.searchedPlaces.push(places[i]);
                     }
