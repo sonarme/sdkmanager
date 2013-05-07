@@ -6,6 +6,7 @@ angular.module('dashboard', ['ui', 'ui.bootstrap', '$strap.directives', 'dashboa
     config(['$routeProvider', function ($routeProvider) {
         $routeProvider
             .when('/analytics', {templateUrl: 'partials/analytics.html', controller: 'Analytics'})
+            .when('/campaigns', {templateUrl: 'partials/campaigns.html', controller: 'CampaignsCtrl'})
             .when('/marketingBuild', {templateUrl: 'partials/marketingBuild.html', controller: 'MarketingBuild'})
             .when('/geofenceBuild', {templateUrl: 'partials/geofenceBuild.html', controller: 'GeofenceBuildCtrl'})
             .otherwise({redirectTo: '/analytics'});

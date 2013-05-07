@@ -46,7 +46,7 @@
 
                 <div class="controls">
                     Only send 1 message like this per user <select ng-model="frequencyCap"
-                                                                   ng-options="f.name for f in frequencyCaps"></select>
+                                                                   ng-options="f.id as f.name for f in frequencyCaps"></select>
                 </div>
             </div>
         </div>
@@ -94,29 +94,29 @@
             <div class="span2">
                 <select
                         ng-model="clause.attribute"
-                        ng-options="a.name group by a.group for a in attributes"
-                        ng-change="clause.value=clause.attribute.options[0];clause.compareOp=compareOps[clause.attribute.type][0]"
-                        required></select></div>
+                        ng-options="aid as a.name group by a.group for (aid,a) in attributes"
+                        ng-change="changeAttribute(clause)"
+                        ></select></div>
             <div class="span2">
-                <span ng-show="clause.attribute.type!='n'">is one of</span>
+                <span ng-show="!numericType(clause.attribute)">is one of</span>
                 <select
-                        ng-show="clause.attribute.type=='n'"
+                        ng-show="numericType(clause.attribute)"
                         ng-model="clause.compareOp"
-                        ng-options="c.name for c in compareOps[clause.attribute.type]"
-                        required></select>
+                        ng-options="c.id as c.name for c in compareOps(clause.attribute)"
+                        ></select>
             </div>
             <div class="span2">
                 <input type="text" ng-model="clause.value"
-                       ng-show="clause.attribute.type=='n'" ng-required="clause.attribute.type=='n'"/>
+                       ng-show="numericType(clause.attribute)" ng-required="numericType(clause.attribute)"/>
 
 
-                <div class="dropdown" ng-show="clause.attribute.type!='n'">
+                <div class="dropdown" ng-show="!numericType(clause.attribute)">
                     <button type="button" class="btn dropdown-toggle-keep"
                             style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{
                         attributeText(clause.values)}} <b
                                 class="caret"></b></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="o in clause.attribute.options">
+                        <li ng-repeat="o in attributes[clause.attribute].options">
                             <label>
                                 <input type="checkbox" value="{{o.id}}"
                                        ng-model="clause.values[o]">
@@ -128,11 +128,6 @@
                     </ul>
                 </div>
             </div>
-            <!--  <select
-                      ng-model="clause.value"
-                      ng-options="o for o in clause.attribute.options" class="span2"
-                      ng-show="clause.attribute.type!='n'"
-                      ng-required="clause.attribute.type!='n'"></select>-->
             <a class="icon-remove" ng-click="removeClause(clause)"></a>
         </ng-form>
     </div>
@@ -148,11 +143,11 @@
     <div ng-repeat="ge in geofenceEntries" class="builderrow row-fluid">
         <ng-form name="actionForm">
             <select
-                    ng-model="ge.geofenceAction"
-                    ng-options="ga.name for ga in geofenceActions" class="span2" required></select>
+                    ng-model="ge.entering"
+                    ng-options="ga.id as ga.name for ga in geofenceActions" class="span2"></select>
             <select
-                    ng-model="ge.geofenceList"
-                    ng-options="gl.name for gl in geofenceLists" class="span2" required></select>
+                    ng-model="ge.geofenceListId"
+                    ng-options="gl.id as gl.name for gl in geofenceLists" class="span2" required></select>
             <a class="icon-remove" ng-click="removeGeofenceEntry(ge)"></a>
         </ng-form>
     </div>
@@ -167,9 +162,9 @@
     <div class="row-fluid">
         <select
                 ng-model="asap"
-                ng-options="dto.name for dto in dateTimeOptions" required></select>
+                ng-options="dto.id as dto.name for dto in dateTimeOptions"></select>
     </div>
-    <div ng-show="!(asap.id)">
+    <div ng-show="!asap">
         <div class="row-fluid">
             <div class="span3">Start Date</div>
             <div class="span3">End Date</div>

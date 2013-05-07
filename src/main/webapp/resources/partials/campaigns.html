@@ -1,0 +1,29 @@
+<h3>Campaigns</h3>
+<div ng-controller="CampaignsCtrl">
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Message</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="campaign in campaigns">
+            <td>{{campaign.name}}</td>
+            <td>{{campaign.message}}</td>
+            <td>{{campaign.asap && 'ASAP' || (campaign.startDate | date:'medium')}}</td>
+            <td>{{campaign.asap && '' || (campaign.endDate | date:'medium')}}</td>
+        </tr>
+        </tbody>
+        <caption>
+            <ng-pluralize count="campaigns.length"
+                          when="{'0': 'No campaigns.',
+                           'one': '1 campaign total.',
+                           'other': '{} campaigns total.'}">
+            </ng-pluralize>
+        </caption>
+    </table>
+
+</div>

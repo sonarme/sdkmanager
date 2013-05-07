@@ -3,27 +3,12 @@ package me.sonar.sdkmanager.web.api
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import me.sonar.sdkmanager.model._
-import api._
-import api.Campaign
-import api.Campaign
-import api.GeofenceEvent
-import api.MessageAction
-import api.Rule
-import api.Rule
-import api.StaticGeoFence
 import api.SyncRequest
-import api.SyncRequest
-import api.SyncResponse
 import api.SyncResponse
 import grizzled.slf4j.Logging
 import javax.inject.Inject
 import me.sonar.sdkmanager.core.{SyncService, CampaignService}
-import org.scala_tools.time.Imports._
-import scala.Some
-import au.com.bytecode.opencsv.CSVWriter
-import java.io.OutputStreamWriter
-import java.nio.charset.Charset
-import org.springframework.http.{HttpOutputMessage, MediaType}
+import scala.collection.mutable.ListBuffer
 
 @Controller
 class SyncController extends Logging {
@@ -32,16 +17,23 @@ class SyncController extends Logging {
     @Inject
     var syncService: SyncService = _
 
+    val campaignsList = ListBuffer[java.util.Map[String, Any]]()
+
     @RequestMapping(value = Array("/"), method = Array(RequestMethod.HEAD, RequestMethod.GET))
     @ResponseBody
     def ping(): String = ""
 
     @RequestMapping(value = Array("/campaigns"), method = Array(RequestMethod.POST))
     @ResponseBody
-    def campaigns(@RequestBody body: java.util.Map[String, Any]) = {
+    def createCampaign(@RequestBody body: java.util.Map[String, Any]) = {
         info(s"POST $body")
+        campaignsList += body
         ""
     }
+
+    @RequestMapping(value = Array("/campaigns"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def campaigns = campaignsList
 
     @RequestMapping(value = Array("/sync"), method = Array(RequestMethod.POST))
     @ResponseBody
