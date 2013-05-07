@@ -11,20 +11,10 @@ angular.module('dashboard.services', ['ngResource'])
         return $resource('/api/campaigns/:campaignId', {}, {})
     })
     .factory('Geofence', function ($resource) {
-        return  {
-            query: function (queryParams, successHandler, errorHandler) {
-                successHandler([
-                    {
-                        id: "gf1",
-                        name: "McDonalds"
-                    },
-                    {
-                        id: "gf2",
-                        name: "Burger King"
-                    }
-                ]);
-            }
-        }
+        return $resource('/api/geofencelist/:id', {}, {})
+    })
+    .factory('GeofenceList', function ($resource) {
+        return $resource('/api/geofencelists/:appId', {}, {})
     })
     .factory('Factual', function ($resource) {
         return $resource('/api/factual', {}, {})

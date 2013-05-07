@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.query.Criteria._
 import org.joda.time.DateTime
 import me.sonar.sdkmanager.core.SimpleMongoRepository
 import collection.JavaConversions._
-import java.util.Date
+import java.util.{UUID, Date}
 import me.sonar.sdkmanager.core.ScalaGoodies._
 import com.mongodb.{WriteResult, MapReduceCommand}
 import org.springframework.data.mongodb.core.query.{Update, Criteria, Query}
@@ -168,3 +168,16 @@ case class AppMetadata(
 
 @Repository
 class AppMetadataDao extends SimpleMongoRepository[AppMetadata]
+
+
+case class Place(var id: String, var name: String, var lat: Double, var lng: Double, var `type`: PlaceType)
+
+@Document(collection = "sdk_geofence_list")
+case class GeofenceList(var appId: String, var name: String, var places: java.util.List[Place]) {
+    var id = UUID.randomUUID().toString
+}
+
+@Repository
+class GeofenceListDao extends SimpleMongoRepository[GeofenceList] {
+    def findByAppId(appId: String) = find(query(where("appId") is appId))
+}

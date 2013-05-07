@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.annotation.JsonSubTypes._
 import beans.BeanProperty
 import org.joda.time.DateTime
-import me.sonar.sdkmanager.model.db.{AppMetadata, ProfileAttribute}
+import me.sonar.sdkmanager.model.db.{Place, GeofenceList, AppMetadata, ProfileAttribute}
 import com.factual.driver.{FacetResponse, ReadResponse}
 
 case class SyncRequest(var clientVersion: Int, var events: Seq[PublicEvent] = Seq.empty[PublicEvent], var profileAttributes: Seq[ProfileAttribute] = Seq.empty[ProfileAttribute]) {
@@ -92,3 +92,6 @@ case class FactualGeo(lat: Double,
                       radius: Int = 5000)
 
 case class FactualPlaceResponse(places: ReadResponse, facets: FacetResponse)
+
+case class GeofenceListRequest(var appId: String, var name: String, var places: java.util.List[Place])
+case class GeofenceListsResponse(var list: Seq[GeofenceList] = Seq.empty[GeofenceList])
