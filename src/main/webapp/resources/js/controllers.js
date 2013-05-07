@@ -178,9 +178,7 @@ angular.module('dashboard.controllers', [])
             var place;
             while ($scope.searchedPlaces.length) {
                 place = $scope.searchedPlaces.pop();
-                if (!arrayContainsPlace($scope.placesAdded, place)) {
-                    place.marker.setMap(null);
-                }
+                place.marker.setMap(null);
             }
             $scope.bounds = new google.maps.LatLngBounds(); //reset the bounds
             for (var i = 0; i < $scope.placesAdded.length; i++) {
@@ -204,14 +202,15 @@ angular.module('dashboard.controllers', [])
                 $scope.placesData = data.places;
                 var places = data.places.data;
                 var facets = data.facets.data;
-                for(var key in facets) {
+                for (var key in facets) {
                     $scope['typeahead_' + key] = Object.keys(facets[key]);
                 }
+                var place;
                 for (var i = 0; i < places.length; i++) {
-                    if ((places[i].latitude !== undefined || places[i].longitude !== undefined)) {
-                        addMarker(places[i], arrayContainsPlace($scope.placesAdded, places[i]));
-
-                        $scope.searchedPlaces.push(places[i]);
+                    place = places[i];
+                    if ((place.latitude !== undefined || place.longitude !== undefined)) {
+                        addMarker(place, arrayContainsPlace($scope.placesAdded, place));
+                        $scope.searchedPlaces.push(place);
                     }
                 }
                 $scope.myMap.fitBounds($scope.bounds);
@@ -247,7 +246,12 @@ angular.module('dashboard.controllers', [])
 
         $scope.clearList = function () {
             while ($scope.placesAdded.length) {
-                $scope.placesAdded.pop().marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|808080");
+                var place = $scope.placesAdded.pop();
+                var placeIndex = $scope.searchedPlaces.map(function (p) {
+                    return p.factual_id;
+                }).indexOf(place.factual_id);
+                if (placeIndex > -1)
+                    $scope.searchedPlaces[placeIndex].marker.setIcon("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|808080");
             }
         }
 
