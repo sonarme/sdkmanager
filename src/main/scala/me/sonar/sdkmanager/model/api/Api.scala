@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes._
 import beans.BeanProperty
 import org.joda.time.DateTime
 import me.sonar.sdkmanager.model.db.{AppMetadata, ProfileAttribute}
+import com.factual.driver.{FacetResponse, ReadResponse}
 
 case class SyncRequest(var clientVersion: Int, var events: Seq[PublicEvent] = Seq.empty[PublicEvent], var profileAttributes: Seq[ProfileAttribute] = Seq.empty[ProfileAttribute]) {
     def this() = this(-1)
@@ -90,4 +91,4 @@ case class FactualGeo(lat: Double,
                       lng: Double,
                       radius: Int = 5000)
 
-case class FactualPlaceResponse(totalRowCount: Int, includedRows: Int, status: String, data: java.util.List[java.util.Map[String, Object]])
+case class FactualPlaceResponse(places: ReadResponse, facets: FacetResponse)

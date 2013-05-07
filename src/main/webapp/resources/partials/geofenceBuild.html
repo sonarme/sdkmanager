@@ -6,10 +6,10 @@
 
                 <input class="input-xxlarge" type="text" ng-model="factual.query"
                        placeholder='Search (e.g., "Starbucks", "Los Angeles", or "Bars")'>
-                <input class="input-medium" type="text" ng-model="factual.country" placeholder='Country'>
-                <input class="input-medium" type="text" ng-model="factual.region" placeholder='NY, TX'>
-                <input class="input-medium" type="text" ng-model="factual.locality" placeholder='New York, Austin'>
-                <input class="input-medium" type="text" ng-model="factual.category" placeholder='bar,restaurant'>
+                <input class="input-medium" type="text" ng-model="factual.country" placeholder='Country' bs-typeahead="typeahead_country" data-min-length="0">
+                <input class="input-medium" type="text" ng-model="factual.region" placeholder='NY, TX' bs-typeahead="typeahead_region" data-min-length="0">
+                <input class="input-medium" type="text" ng-model="factual.locality" placeholder='New York, Austin' bs-typeahead="typeahead_locality" data-min-length="0">
+                <input class="input-medium" type="text" ng-model="factual.category" placeholder='bar,restaurant' bs-typeahead="typeahead_category" data-min-length="0">
                 <input type="submit" value="Submit"/>
                 <button class="btn btn-primary" type="button" ng-click="addToList()">Add to List</button>
             </fieldset>
