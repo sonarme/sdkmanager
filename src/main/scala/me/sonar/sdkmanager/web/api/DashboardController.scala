@@ -5,24 +5,14 @@ import grizzled.slf4j.Logging
 import org.springframework.web.bind.annotation._
 import scala.Array
 import javax.inject.Inject
-import me.sonar.sdkmanager.core.{GeofenceListService, CampaignService}
+import me.sonar.sdkmanager.core.GeofenceListService
 import me.sonar.sdkmanager.model.api.{GeofenceListRequest, GeofenceListsResponse}
 import me.sonar.sdkmanager.model.db.GeofenceList
 
 @Controller
 class DashboardController extends Logging {
-
-    @Inject
-    var campaignService: CampaignService = _
     @Inject
     var geofenceListService: GeofenceListService = _
-
-    @RequestMapping(value = Array("/campaigns"), method = Array(RequestMethod.POST))
-    @ResponseBody
-    def campaigns(@RequestBody body: java.util.Map[String, Any]) = {
-        info(s"POST $body")
-        ""
-    }
 
     @RequestMapping(value = Array("/geofencelists/{appId}"), method = Array(RequestMethod.GET))
     @ResponseBody
