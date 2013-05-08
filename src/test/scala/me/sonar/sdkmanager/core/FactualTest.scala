@@ -7,6 +7,10 @@ import me.sonar.sdkmanager.model.api.FactualPlaceRequest
 import me.sonar.sdkmanager.model.api.FactualGeo
 import scala.collection.JavaConversions._
 import org.json.JSONArray
+import com.fasterxml.jackson.databind.ObjectMapper
+import me.sonar.sdkmanager.web.api.RestObjectMapper
+import org.apache.commons.io.FileUtils
+import java.io.File
 
 class FactualTest extends SpringComponentTest {
     @Inject
@@ -55,4 +59,42 @@ class FactualTest extends SpringComponentTest {
         val cat2 = factualService.getCategoryFromId("385")
         assert(cat2 === "Gyms and Fitness Centers")
     }
+
+    /*
+    "factualService" should "return all Walmart locations" in {
+        val places = List("MA", "CT", "NY", "NJ", "FL", "CA", "KS", "VA", "WA").map {
+            region => {
+                val factualRequest = new FactualPlaceRequest(query = Option("walmart"), filter = Option(FactualFilter(country = Option(List("US")), region = Option(List(region)), category = Option(List("Department Stores")))), limit = Option(50))
+                getPlaces(region, factualRequest)
+            }
+        }.toMap
+        val mapper = new RestObjectMapper()
+        val json = mapper.writeValueAsString(places)
+        FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/walmart.json"), json)
+    }
+
+
+    "factualService" should "return bars" in {
+        val places = List(("NY", "New York"), ("CA", "San Francisco"), ("IL", "Chicago"), ("FL", "Miami"), ("MO", "Kansas City")).map {
+            case (region, locality) => {
+                val factualRequest = new FactualPlaceRequest(query = Option("bar"), filter = Option(FactualFilter(country = Option(List("US")), region = Option(List(region)), locality = Option(List(locality)), category = Option(List("bars")))), limit = Option(50))
+                getPlaces(region, factualRequest)
+            }
+        }.toMap
+        val mapper = new RestObjectMapper()
+        val json = mapper.writeValueAsString(places)
+        FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/bars.json"), json)
+    }
+
+    private def getPlaces(region: String, factualRequest: FactualPlaceRequest) = {
+        val locations = factualService.getFactualPlaces(factualRequest, includeFacets = false)
+        val iterations = (locations.places.getTotalRowCount / 50).toInt
+        val more = (1 to (List(iterations, 9)).min).map { //max of 10 iterations ... this is a factual limitation
+            it =>
+                factualRequest.offset = Option(it * 50)
+                factualService.getFactualPlaces(factualRequest, includeFacets = false).places.getData
+        }.toSeq.flatten
+        (region, (locations.places.getData ++ more))
+    }
+    */
 }

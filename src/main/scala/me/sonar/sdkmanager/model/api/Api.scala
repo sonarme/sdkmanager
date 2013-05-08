@@ -80,7 +80,7 @@ case class NotPredicate(predicate: Predicate) extends Predicate
 abstract class Predicate
 
 
-case class FactualPlaceRequest(query: Option[String], geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, offset: Option[Int] = None)
+case class FactualPlaceRequest(query: Option[String], geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, var offset: Option[Int] = None)
 
 case class FactualFilter(category: Option[Seq[String]] = None,
                          region: Option[Seq[String]] = None,

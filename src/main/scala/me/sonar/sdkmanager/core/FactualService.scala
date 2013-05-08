@@ -107,8 +107,24 @@ class FactualService extends Segmentation {
         ret
     }
 
-    def getFactualPlaces(factualRequest: FactualPlaceRequest) = {
+    def getFactualPlaces(factualRequest: FactualPlaceRequest, includeFacets: Boolean = true) = {
         val multiReq = new MultiRequest
+        val query = buildQuery(factualRequest)
+
+        multiReq.addQuery("places", "places", query)
+        if(includeFacets)
+            multiReq.addQuery("facets", "places/facets", buildFacetQuery(factualRequest))
+
+        val res = factual.sendRequests(multiReq)
+        val places = res.getData.get("places").asInstanceOf[ReadResponse]
+        val facets = ?(res.getData.get("facets").asInstanceOf[FacetResponse])
+        val categories = ?(facets.getData.get("category_ids").map{case(k,v) => getCategoryFromId(k) -> v})
+        ?(facets.getData.put("category", categories))
+        val placesResponse = FactualPlaceResponse(places, facets)
+        placesResponse
+    }
+
+    private def buildQuery(factualRequest: FactualPlaceRequest) = {
         val query = new Query()
                 .includeRowCount()
         factualRequest.query.map(query.search(_))
@@ -125,18 +141,10 @@ class FactualService extends Segmentation {
         }
         factualRequest.limit.map(query.limit(_))
         factualRequest.offset.map(query.offset(_))
-
-        multiReq.addQuery("places", "places", query)
-        multiReq.addQuery("facets", "places/facets", getFacetQuery(factualRequest))
-        val res = factual.sendRequests(multiReq)
-        val places = res.getData.get("places").asInstanceOf[ReadResponse]
-        val facets = res.getData.get("facets").asInstanceOf[FacetResponse]
-        val categories = facets.getData.get("category_ids").map{case(k,v) => getCategoryFromId(k) -> v}
-        facets.getData.put("category", categories)
-        FactualPlaceResponse(places, facets)
+        query
     }
 
-    private def getFacetQuery(factualRequest: FactualPlaceRequest) = {
+    private def buildFacetQuery(factualRequest: FactualPlaceRequest) = {
         val query = new FacetQuery("country", "region", "locality", "category_ids")
                 .includeRowCount()
                 .minCountPerFacetValue(1)
