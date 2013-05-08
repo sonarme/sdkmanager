@@ -1,7 +1,7 @@
 package me.sonar.sdkmanager.model.db
 
 import org.joda.time.DateTime
-import scala.slick.integration.{StringEntity, _Component, Profile}
+import scala.slick.integration.{Entity, StringEntity, _Component, Profile}
 import me.sonar.sdkmanager.db.TypeMappers._
 import javax.inject.Inject
 import scala.slick.session.Database
@@ -217,4 +217,14 @@ trait DB extends _Component with Profile {
         def * = id ~ platform ~ category <>(AppMetadata, AppMetadata.unapply _)
     }
 
+
+    // TODO: place, geofence
 }
+
+case class Place(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
+
+case class GeofenceListToPlace(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
+
+case class GeofenceList(var id: Long, var appId: String, var name: String) extends Entity[GeofenceList]
+
+case class Geofence(var id: Long, var geofenceListId: Long, appId: String, name: String) extends Entity[GeofenceList]

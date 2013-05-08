@@ -1,17 +1,15 @@
 package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
-import me.sonar.sdkmanager.model.db.{GeofenceList, GeofenceListDao}
 import javax.inject.Inject
+import me.sonar.sdkmanager.model.db.{GeofenceList, DB}
 
 @Service
-class GeofenceListService {
-    @Inject
-    var geofenceListDao: GeofenceListDao = _
+class GeofenceListService extends DB {
 
-    def save(geofenceList: GeofenceList) = geofenceListDao.save(geofenceList)
+    def save(geofenceList: GeofenceList) = null //geofenceListDao.save(geofenceList)
 
-    def findByAppId(appId: String) = geofenceListDao.findByAppId(appId)
+    def findByAppId(appId: String): Seq[GeofenceList] = Seq.empty[GeofenceList] //geofenceListDao.findByAppId(appId)
 
-    def findById(id: String) = geofenceListDao.findOne(id)
+    def findById(id: String): Option[GeofenceList] = None //geofenceListDao.findOne(id)
 }

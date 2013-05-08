@@ -30,7 +30,8 @@ class DashboardController extends Logging {
     @RequestMapping(value = Array("/geofencelist"), method = Array(RequestMethod.POST))
     @ResponseBody
     def createGeofenceList(@RequestBody geofenceList: GeofenceListRequest) = {
-        geofenceListService.save(GeofenceList(geofenceList.appId, geofenceList.name, geofenceList.places))
+        geofenceListService.save(GeofenceList(0, geofenceList.appId, geofenceList.name))
+        // TODO: geofenceList.places
     }
 
     @RequestMapping(value = Array("geofencelist/{id}"), method = Array(RequestMethod.POST, RequestMethod.PUT))
@@ -41,7 +42,6 @@ class DashboardController extends Logging {
             case Some(gfl) =>
                 gfl.name = geofenceList.name
                 gfl.appId = geofenceList.appId
-                gfl.places = geofenceList.places
                 geofenceListService.save(gfl)
             case None => throw new RuntimeException("Cannot find geofence list with id: " + id)
         }

@@ -4,6 +4,7 @@ import scala.slick.lifted.MappedTypeMapper
 import org.joda.time.DateTime
 import java.sql.Date
 import me.sonar.sdkmanager.model.Platform
+import me.sonar.sdkmanager.model.db.PlaceType
 
 object TypeMappers {
 
@@ -13,7 +14,12 @@ object TypeMappers {
     )
 
     implicit def platform2String = MappedTypeMapper.base[Platform, String](
-        platform => platform.name(),
+        enum => enum.name(),
         name => Platform.valueOf(name)
+    )
+
+    implicit def placetype2String = MappedTypeMapper.base[PlaceType, String](
+        enum => enum.name(),
+        name => PlaceType.valueOf(name)
     )
 }
