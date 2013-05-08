@@ -12,7 +12,7 @@ angular.module('dashboard.controllers', [])
         }, function (data) {
         })
     }      ])
-    .controller('MarketingBuild', ['$scope', 'Campaign', 'Geofence', function ($scope, Campaign, Geofence) {
+    .controller('MarketingBuild', ['$scope', 'Campaign', 'GeofenceList', function ($scope, Campaign, GeofenceList) {
         $scope.campaign = {};
         $scope.predicate = 'and';
         $scope.attributes = {
@@ -63,15 +63,16 @@ angular.module('dashboard.controllers', [])
             {name: "Specific date & time", id: false}
         ]
         $scope.asap = true;
-        Geofence.query(null, function (data) {
-            $scope.geofenceLists = data;
+        
+        GeofenceList.get({appId:"testApp"}, function(data) {
+            $scope.geofenceLists = data.list;
             for (var i = 0; i < data.length; ++i) {
-                $scope.attributes[data[i].id] =
-                {name: "Visits of " + data[i].name, group: 'Visits', type: 'n'};
-
+                $scope.attributes.push(
+                    {name: "Visits of " + data[i].name, id: data[i].id, group: 'Visits', type: 'n'}
+                )
             }
-        }, function (data) {
         })
+        
         $scope.dowAll = false;
         $scope.clauses = [
 
@@ -151,7 +152,7 @@ angular.module('dashboard.controllers', [])
             return value === "" ? 'None' : value;
         }
     }])
-    .controller('GeofenceBuildCtrl', ['$scope', 'Factual', function ($scope, Factual) {
+    .controller('GeofenceBuildCtrl', ['$scope', 'Factual', 'Geofence', function ($scope, Factual, Geofence) {
         $scope.searchedPlaces = [];
         $scope.placesAdded = [];
         $scope.bounds = new google.maps.LatLngBounds();
@@ -259,6 +260,21 @@ angular.module('dashboard.controllers', [])
         }
 
         $scope.saveList = function (name) {
-            alert("saved: " + name);
+            var geofence = new Geofence();
+            geofence.name = name;
+            geofence.appId = "testApp"; //todo: change this
+            geofence.places = []
+            var place;
+            for (var i=0; i<$scope.placesAdded.length; i++) {
+                place = $scope.placesAdded[i];
+                geofence.places.push({id:"factual-" + place.factual_id, name:place.name, lat:place.latitude, lng:place.longitude, type:"factual"})
+            }
+            geofence.$save(function(data) {
+                console.log(data);
+                alert("Saved " + name);
+            })
         }
+    }])
+    .controller('GeofenceListsCtrl', ['$scope', 'GeofenceList', function ($scope, GeofenceList) {
+        $scope.geofenceLists = GeofenceList.get({appId: "testApp"})
     }]);

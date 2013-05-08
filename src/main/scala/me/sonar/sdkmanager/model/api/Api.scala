@@ -80,7 +80,7 @@ case class NotPredicate(predicate: Predicate) extends Predicate
 abstract class Predicate
 
 
-case class FactualPlaceRequest(query: Option[String], geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, offset: Option[Int] = None)
+case class FactualPlaceRequest(query: Option[String], geo: Option[FactualGeo] = None, filter: Option[FactualFilter] = None, limit: Option[Int] = None, var offset: Option[Int] = None)
 
 case class FactualFilter(category: Option[Seq[String]] = None,
                          region: Option[Seq[String]] = None,
@@ -92,3 +92,6 @@ case class FactualGeo(lat: Double,
                       radius: Int = 5000)
 
 case class FactualPlaceResponse(places: ReadResponse, facets: FacetResponse)
+
+case class GeofenceListRequest(var appId: String, var name: String, var places: java.util.List[Place])
+case class GeofenceListsResponse(var list: Seq[GeofenceList] = Seq.empty[GeofenceList])
