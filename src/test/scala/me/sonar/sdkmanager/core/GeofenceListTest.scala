@@ -19,7 +19,7 @@ class GeofenceListTest extends SpringComponentTest {
         )
         geofenceListService.save(geofenceList)
 
-        val geofenceLists = geofenceListService.findByAppId("mcdonalds")
+        val geofenceLists = geofenceListService.findByAppId("testApp")
         assert(geofenceLists.size === 1)
         assert(geofenceLists.head.places.size() === 3)
     }
