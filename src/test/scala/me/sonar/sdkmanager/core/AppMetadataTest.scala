@@ -5,9 +5,10 @@ import me.sonar.sdkmanager.{SpringComponentTest, SimpleTest}
 import org.jsoup.Jsoup
 import javax.inject.Inject
 import me.sonar.sdkmanager.model.Platform
-import me.sonar.sdkmanager.model.db.ProfileAttribute
+import me.sonar.sdkmanager.model.db.{DB, ProfileAttribute}
+import scala.slick.session.Database
 
-class AppMetadataTest extends SpringComponentTest {
+class AppMetadataTest extends SpringComponentTest with DB {
 
     @Inject
     var appMetadataService: AppMetadataService = _

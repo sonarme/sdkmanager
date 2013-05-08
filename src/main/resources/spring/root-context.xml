@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
        xsi:schemaLocation="
 			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-			 http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
+">
 
     <context:property-placeholder location="classpath:${PARAM1}/app.properties"
                                   system-properties-mode="ENVIRONMENT"/>
@@ -19,56 +18,16 @@
     </context:component-scan>
 
 
-    <!-- Mongo Configuration -->
-    <mongo:db-factory id="mongoDbFactory" dbname="${mongo.db.name}" mongo-ref="mongo"
-                      username="${mongo.username}" password="${mongo.password}"/>
-
-    <bean id="mongoMappingContext" class="org.springframework.data.mongodb.core.mapping.MongoMappingContext"/>
-    <bean class="org.springframework.data.mongodb.core.MongoTemplate">
-        <constructor-arg ref="mongoDbFactory"/>
-        <!-- avoid writing the type information into mongo unless it's annotated -->
-        <constructor-arg>
-            <bean class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
-                <constructor-arg ref="mongoDbFactory"/>
-                <constructor-arg ref="mongoMappingContext"/>
-                <property name="typeMapper">
-                    <bean class="org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper">
-                        <constructor-arg
-                                value="#{T(org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper).DEFAULT_TYPE_KEY}"/>
-                        <constructor-arg>
-                            <list>
-                                <bean class="org.springframework.data.convert.MappingContextTypeInformationMapper">
-                                    <constructor-arg ref="mongoMappingContext"/>
-                                </bean>
-                            </list>
-                        </constructor-arg>
-                    </bean>
-                </property>
-                <property name="customConversions">
-                    <bean class="org.springframework.data.mongodb.core.convert.CustomConversions">
-                        <constructor-arg>
-                            <list>
-                                <bean class="me.sonar.sdkmanager.core.DateTimeToDateConverter"/>
-                                <bean class="me.sonar.sdkmanager.core.DateToDateTimeConverter"/>
-                            </list>
-                        </constructor-arg>
-                    </bean>
-                </property>
-            </bean>
-        </constructor-arg>
-        <property name="writeConcern" value="NORMAL"/>
-        <property name="writeResultChecking" value="EXCEPTION"/>
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/sonar"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
     </bean>
-    <mongo:mongo id="mongo" host="${mongo.host}" port="${mongo.port}" replica-set="${mongo.replicaSet}">
-        <!-- see http://stackoverflow.com/questions/6520439/how-to-configure-mongodb-java-driver-mongooptions-for-production-use -->
-        <mongo:options
-                connections-per-host="30"
-                threads-allowed-to-block-for-connection-multiplier="1500"
-                auto-connect-retry="true"
-                socket-timeout="60000"
-                slave-ok="true"
-                />
-    </mongo:mongo>
+    <bean class="scala.slick.session.Database" factory-method="forDataSource">
+        <constructor-arg ref="dataSource"/>
+    </bean>
 
     <bean class="com.factual.driver.Factual">
         <constructor-arg value="${factual.key}"/>

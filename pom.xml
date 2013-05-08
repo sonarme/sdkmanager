@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.sonar</groupId>
     <artifactId>sdkmanager</artifactId>
@@ -149,23 +149,18 @@
             <version>1.7</version>
         </dependency>
 
-        <!-- Mongo -->
+        <!-- Slick -->
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-            <version>1.1.1.RELEASE</version>
+            <groupId>com.typesafe.slick</groupId>
+            <artifactId>slick_2.10</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>2.11.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.persistence</groupId>
-                    <artifactId>persistence-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.24</version>
         </dependency>
+
 
         <!-- Joda time -->
         <dependency>
