@@ -274,4 +274,7 @@ angular.module('dashboard.controllers', [])
                 alert("Saved " + name);
             })
         }
+    }])
+    .controller('GeofenceListsCtrl', ['$scope', 'GeofenceList', function ($scope, GeofenceList) {
+        $scope.geofenceLists = GeofenceList.get({appId: "testApp"})
     }]);
