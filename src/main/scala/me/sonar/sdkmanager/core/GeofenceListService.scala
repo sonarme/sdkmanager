@@ -1,15 +1,20 @@
 package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
-import javax.inject.Inject
 import me.sonar.sdkmanager.model.db.{GeofenceList, DB}
+import scala.slick.session.Session
 
 @Service
 class GeofenceListService extends DB {
 
-    def save(geofenceList: GeofenceList) = null //geofenceListDao.save(geofenceList)
+    import profile.simple._
 
-    def findByAppId(appId: String): Seq[GeofenceList] = Seq.empty[GeofenceList] //geofenceListDao.findByAppId(appId)
+    def save(geofenceList: GeofenceList) = GeofenceLists.insert(geofenceList)
 
-    def findById(id: String): Option[GeofenceList] = None //geofenceListDao.findOne(id)
+    def findByAppId(appId: String): Seq[GeofenceList] = db withSession {
+        implicit session: Session =>
+            (for (g <- GeofenceLists if g.appId === appId) yield g).list()
+    }
+
+    def findById(id: Long): Option[GeofenceList] = GeofenceLists.findById(id)
 }

@@ -33,6 +33,25 @@ case class GeofenceEvent(
                                 var entering: DateTime,
                                 var exiting: DateTime) extends StringEntity[GeofenceEvent]
 
+
+case class FactualGeopulse(
+                                  var id: String,
+                                  response: String) extends StringEntity[FactualGeopulse]
+
+case class AppMetadata(
+                              var id: String,
+                              platform: Platform,
+                              category: String) extends StringEntity[AppMetadata]
+
+case class Place(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
+
+case class GeofenceListToPlace(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
+
+case class GeofenceList(var id: Long, var appId: String, var name: String) extends Entity[GeofenceList]
+
+case class Geofence(var id: Long, var geofenceListId: Long, appId: String, name: String) extends Entity[GeofenceList]
+
+
 trait DB extends _Component with Profile {
     val profile = MySQLDriver
     @Inject
@@ -69,6 +88,8 @@ trait DB extends _Component with Profile {
     //class AppDao extends SimpleMongoRepository[App] {
     //    def findByApiKey(apiKey: String) = find(query(where("apiKey") is apiKey)).headOption
     //}
+
+    import profile.simple._
 
 
     object ProfileAttributes extends StringMapper[ProfileAttribute]("ProfileAttributes") {
@@ -211,9 +232,7 @@ trait DB extends _Component with Profile {
     //        mapReduce( s"""{appId:"$appId"}""", aggregateMap, aggregateReduce, Some(aggregateFinalize), tempCollection, MapReduceCommand.OutputType.REPLACE)
     //    }
     //}
-    case class FactualGeopulse(
-                                      var id: String,
-                                      response: String) extends StringEntity[FactualGeopulse]
+
 
     object FactualGeopulseResponses extends StringMapper[FactualGeopulse]("FactualGeopulseResponses") {
 
@@ -222,10 +241,6 @@ trait DB extends _Component with Profile {
         def * = id ~ response <>(FactualGeopulse, FactualGeopulse.unapply _)
     }
 
-    case class AppMetadata(
-                                  var id: String,
-                                  platform: Platform,
-                                  category: String) extends StringEntity[AppMetadata]
 
     object AppMetadatas extends StringMapper[AppMetadata]("AppMetadatas") {
 
@@ -236,14 +251,41 @@ trait DB extends _Component with Profile {
         def * = id ~ platform ~ category <>(AppMetadata, AppMetadata.unapply _)
     }
 
+    object GeofenceLists extends Mapper[GeofenceList]("GeofenceList") {
+
+        def appId = column[String]("appId")
+
+        def name = column[String]("name")
+
+        def * = id ~ appId ~ name <>(GeofenceList, GeofenceList.unapply _)
+
+        def places = GeofenceListsToPlaces.filter(_.geofenceListId === id).flatMap(_.place)
+    }
+
+    object GeofenceListsToPlaces extends Table[(Long, Long)]("GeofenceListsToPlaces") {
+
+        def geofenceListId = column[Long]("geofenceListId")
+
+        def placeId = column[Long]("placeId")
+
+        def * = geofenceListId ~ placeId
+
+        def place = foreignKey("placeId_fk", placeId, Places)(b => b.id)
+    }
+
+    object Places extends Mapper[Place]("Places") {
+
+        def name = column[String]("name")
+
+        def lat = column[Double]("lat")
+
+        def lng = column[Double]("lng")
+
+        def `type` = column[PlaceType]("type")
+
+        def * = id ~ name ~ lat ~ lng ~ `type` <>(Place, Place.unapply _)
+
+    }
 
     // TODO: place, geofence
 }
-
-case class Place(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
-
-case class GeofenceListToPlace(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
-
-case class GeofenceList(var id: Long, var appId: String, var name: String) extends Entity[GeofenceList]
-
-case class Geofence(var id: Long, var geofenceListId: Long, appId: String, name: String) extends Entity[GeofenceList]

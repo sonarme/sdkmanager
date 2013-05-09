@@ -36,7 +36,7 @@ class DashboardController extends Logging {
 
     @RequestMapping(value = Array("geofencelist/{id}"), method = Array(RequestMethod.POST, RequestMethod.PUT))
     @ResponseBody
-    def putGeofenceList(@PathVariable("id") id: String,
+    def putGeofenceList(@PathVariable("id") id: Long,
                         @RequestBody geofenceList: GeofenceListRequest) = {
         geofenceListService.findById(id) match {
             case Some(gfl) =>
