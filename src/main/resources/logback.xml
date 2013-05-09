@@ -14,4 +14,7 @@
     <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="debug" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
+    <logger name="scala.slick.session" level="debug" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
 </configuration>

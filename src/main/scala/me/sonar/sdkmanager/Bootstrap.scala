@@ -2,7 +2,8 @@ package me.sonar.sdkmanager
 
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import javax.inject.Inject
-import me.sonar.sdkmanager.core.FactualService
+import me.sonar.sdkmanager.core.{AggregationService, FactualService}
+import ch.hsr.geohash.GeoHash
 
 object Bootstrap extends App {
 
@@ -22,8 +23,13 @@ trait Handler {
 class FactualFetcher extends Handler {
     @Inject
     var factualService: FactualService = _
+    @Inject
+    var attributeService: AggregationService = _
 
     def execute(args: Array[String]) {
-        println(args.toSeq)
+        attributeService.getAttributesOfType("home") foreach {
+            a =>
+                factualService.getFactualData(a.value)
+        }
     }
 }

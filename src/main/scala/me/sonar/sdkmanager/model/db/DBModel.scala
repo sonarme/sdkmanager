@@ -7,6 +7,8 @@ import javax.inject.Inject
 import scala.slick.session.Database
 import scala.slick.driver.MySQLDriver
 import me.sonar.sdkmanager.model.Platform
+import scala.slick.lifted.{SimpleExpression, Column, SimpleFunction}
+import com.github.tototoshi.slick.JodaSupport._
 
 case class App(var id: String, apiKey: String) extends StringEntity[App]
 
@@ -37,6 +39,23 @@ trait DB extends _Component with Profile {
     var db: Database = _
 
     lazy val ddl = Apps.ddl ++ ProfileAttributes.ddl ++ Campaigns.ddl ++ GeofenceEvents.ddl ++ FactualGeopulseResponses.ddl ++ AppMetadatas.ddl
+
+    val unixTimestamp = SimpleFunction.unary[DateTime, Long]("UNIX_TIMESTAMP")
+
+    sealed abstract class Interval(val sql: String)
+
+    case object Day extends Interval("DAY")
+
+    case object Hour extends Interval("HOUR")
+
+    def dateAdd(i: Interval) = SimpleExpression.binary[DateTime, Int, DateTime] {
+        (l, r, qb) =>
+            qb.sqlBuilder += "DATE_ADD("
+            qb.expr(l)
+            qb.sqlBuilder += ", INTERVAL "
+            qb.expr(r)
+            qb.sqlBuilder += ' ' += i.sql += ')'
+    }
 
     object Apps extends StringMapper[App]("Apps") {
 
