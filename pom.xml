@@ -347,5 +347,40 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>bootstrap</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>java</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>me.sonar.sdkmanager.Bootstrap</mainClass>
+                            <arguments>
+                                <argument>${arg0}</argument>
+                                <argument>${arg1}</argument>
+                                <argument>${arg2}</argument>
+                            </arguments>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>PARAM1</key>
+                                    <value>${env}</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
