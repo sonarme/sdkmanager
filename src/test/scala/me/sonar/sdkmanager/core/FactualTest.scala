@@ -59,7 +59,7 @@ class FactualTest extends SpringComponentTest {
         val cat2 = factualService.getCategoryFromId("385")
         assert(cat2 === "Gyms and Fitness Centers")
     }
-
+    */
     /*
     "factualService" should "return all Walmart locations" in {
         val places = List("MA", "CT", "NY", "NJ", "FL", "CA", "KS", "VA", "WA").map {
@@ -68,11 +68,25 @@ class FactualTest extends SpringComponentTest {
                 getPlaces(region, factualRequest)
             }
         }.toMap
+
         val mapper = new RestObjectMapper()
         val json = mapper.writeValueAsString(places)
         FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/walmart.json"), json)
     }
 
+    /*
+    "factualService" should "return all Target locations" in {
+        val places = List("MA", "CT", "NY", "NJ", "FL", "CA", "KS", "VA", "WA").map {
+            region => {
+                val factualRequest = new FactualPlaceRequest(query = Option("target"), filter = Option(FactualFilter(country = Option(List("US")), region = Option(List(region)), category = Option(List("Department Stores")))), limit = Option(50))
+                getPlaces(region, factualRequest)
+            }
+        }.toMap
+
+        val mapper = new RestObjectMapper()
+        val json = mapper.writeValueAsString(places)
+        FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/target.json"), json)
+    }
 
     "factualService" should "return bars" in {
         val places = List(("NY", "New York"), ("CA", "San Francisco"), ("IL", "Chicago"), ("FL", "Miami"), ("MO", "Kansas City")).map {
@@ -86,15 +100,38 @@ class FactualTest extends SpringComponentTest {
         FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/bars.json"), json)
     }
 
+    "factualService" should "return schools" in {
+        val places = List(("NY", "New York"), ("CA", "San Francisco"), ("IL", "Chicago"), ("FL", "Miami"), ("MO", "Kansas City")).map {
+            case (region, locality) => {
+                val factualRequest = new FactualPlaceRequest(query = Option("school"), filter = Option(FactualFilter(country = Option(List("US")), region = Option(List(region)), locality = Option(List(locality)), category = Option(List("Primary and Secondary Schools")))), limit = Option(50))
+                getPlaces(region, factualRequest)
+            }
+        }.toMap
+        val mapper = new RestObjectMapper()
+        val json = mapper.writeValueAsString(places)
+        FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/schools.json"), json)
+    }
+
+    implicit class condensedDataMapper(list: java.util.List[java.util.Map[String, AnyRef]]) {
+        def toCondensedDataList = list.map {
+            d => CondensedFactualData(d.get("factual_id").toString, d.get("latitude").asInstanceOf[Double], d.get("longitude").asInstanceOf[Double])
+        }.toSeq
+    }
+
     private def getPlaces(region: String, factualRequest: FactualPlaceRequest) = {
         val locations = factualService.getFactualPlaces(factualRequest, includeFacets = false)
+        val factualData = locations.places.getData.toCondensedDataList
+
         val iterations = (locations.places.getTotalRowCount / 50).toInt
         val more = (1 to (List(iterations, 9)).min).map { //max of 10 iterations ... this is a factual limitation
             it =>
                 factualRequest.offset = Option(it * 50)
-                factualService.getFactualPlaces(factualRequest, includeFacets = false).places.getData
+                factualService.getFactualPlaces(factualRequest, includeFacets = false).places.getData.toCondensedDataList
         }.toSeq.flatten
-        (region, (locations.places.getData ++ more))
+        (region, (factualData ++ more))
     }
     */
+
 }
+
+case class CondensedFactualData(id: String, lat: Double, lng: Double)
