@@ -131,9 +131,6 @@ trait _Component {
         // -- table columns
         def id = column[String]("id", O.PrimaryKey)
 
-        // -- helpers
-        protected def autoInc = * returning id
-
         // -- operations on rows
         def delete(id: String): Boolean = db.withSession {
             implicit s: Session =>
@@ -155,13 +152,6 @@ trait _Component {
         def findById(id: String): Option[T] = db.withSession {
             implicit s: Session =>
                 findByIdQuery(id).firstOption
-        }
-
-        def insert(entity: T): T = db.withSession {
-            implicit s: Session =>
-                val id = autoInc.insert(entity)
-                entity.id = id
-                entity
         }
 
         def update(entity: T): T = db.withSession {
