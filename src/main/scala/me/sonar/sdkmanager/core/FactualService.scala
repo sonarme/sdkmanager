@@ -5,7 +5,7 @@ import javax.inject.Inject
 import me.sonar.sdkmanager.model.db._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 
-import ch.hsr.geohash.{WGS84Point, GeoHash}
+import ch.hsr.geohash.{BoundingBox, WGS84Point, GeoHash}
 import collection.JavaConversions._
 import me.sonar.sdkmanager.core.ScalaGoodies._
 import scala.slick.session.Database
@@ -67,47 +67,52 @@ class FactualService extends Segmentation with DB {
     def getFactualData(geohash: String) = db withSession {
         val response = FactualGeopulseResponses.findById(geohash).map(_.response).getOrElse {
             val point: WGS84Point = GeoHash.fromGeohashString(geohash).getBoundingBoxCenterPoint
-            val geopulse = factual.get("places/geopulse", new Geopulse(new Point(point.getLatitude, point.getLongitude)) {
-                def params = toUrlParams
-            }.params)
-            FactualGeopulseResponses.insert(FactualGeopulse(id = geohash, response = geopulse))
-            geopulse
+            // US only
+            if (new BoundingBox(new WGS84Point(24.544245, -124.733253), new WGS84Point(49.388611, -66.954811)).contains(point)) {
+                val geopulse = factual.get("places/geopulse", new Geopulse(new Point(point.getLatitude, point.getLongitude)) {
+                    def params = toUrlParams
+                }.params)
+                FactualGeopulseResponses.insert(FactualGeopulse(id = geohash, response = geopulse))
+                geopulse
+            } else "{}"
         }
 
-        val json = om.readValue(response, classOf[JsonNode])
-        val demographics = json.get("response").get("data").get("demographics")
-        val levelAttained = demographics.get("education").get("level_attained")
-        val genderDistribution = Seq("male", "female").map {
-            case e => e -> (demographics.get("age_and_sex").get(e).asDouble() / 100.0)
-        }.toMap[String, Double]
-        val educationMap = genderDistribution.keys flatMap {
-            g => levelAttained.get(g).fieldMap
-        } groupBy (_._1) mapValues (
-                _.map(_._2).sum
-                )
-        val educationTotal = educationMap.values.sum
-        val eds = educationMap mapValues (_ / educationTotal)
-        val educationAttributes = eds.toProfileAttributes("education")
-        val ageTranslated = genderDistribution.keys flatMap {
-            g => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
-                case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability
-            }
-        }
-        val ageMap = ageTranslated.groupBy(_._1).mapValues(
-            _.map(_._2).sum
-        )
-        val ageAttributes = ageMap.toProfileAttributes("age")
-        val genderAttributes = genderDistribution.toProfileAttributes("gender")
-        val medianIncome = demographics.get("income").get("median_income").get("amount").asInt()
-        val incomeBucket = createSegments(medianIncome, incomeBuckets, None).head.name
-        val housingAttributes = demographics.get("housing").get("household_type").fieldMap.toProfileAttributes("household")
-        val ethnicityAttributes = demographics.get("race_and_ethnicity").get("race").fieldMap.toProfileAttributes("ethnicity")
-        val ret = Seq(
-            (incomeBucket, 0.7, "income")
-        ) ++ ageAttributes ++ genderAttributes ++ housingAttributes ++ ethnicityAttributes ++ educationAttributes
+        /* val json = om.readValue(response, classOf[JsonNode])
+         if (json.get("response") != null &&  json.get("response").get("data") != null && json.get("response").get("data").get("demographics") != null && json.get("response").get("data").get("demographics").get("education") != null) {
+             val demographics = json.get("response").get("data").get("demographics")
+             val levelAttained = demographics.get("education").get("level_attained")
+             val genderDistribution = Seq("male", "female").map {
+                 case e => e -> (demographics.get("age_and_sex").get(e).asDouble() / 100.0)
+             }.toMap[String, Double]
+             val educationMap = genderDistribution.keys flatMap {
+                 g => levelAttained.get(g).fieldMap
+             } groupBy (_._1) mapValues (
+                     _.map(_._2).sum
+                     )
+             val educationTotal = educationMap.values.sum
+             val eds = educationMap mapValues (_ / educationTotal)
+             val educationAttributes = eds.toProfileAttributes("education")
+             val ageTranslated = genderDistribution.keys flatMap {
+                 g => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
+                     case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability
+                 }
+             }
+             val ageMap = ageTranslated.groupBy(_._1).mapValues(
+                 _.map(_._2).sum
+             )
+             val ageAttributes = ageMap.toProfileAttributes("age")
+             val genderAttributes = genderDistribution.toProfileAttributes("gender")
+             val medianIncome = demographics.get("income").get("median_income").get("amount").asInt()
+             val incomeBucket = createSegments(medianIncome, incomeBuckets, None).head.name
+             val housingAttributes = demographics.get("housing").get("household_type").fieldMap.toProfileAttributes("household")
+             val ethnicityAttributes = demographics.get("race_and_ethnicity").get("race").fieldMap.toProfileAttributes("ethnicity")
+             val ret = Seq(
+                 (incomeBucket, 0.7, "income")
+             ) ++ ageAttributes ++ genderAttributes ++ housingAttributes ++ ethnicityAttributes ++ educationAttributes
 
-        //        ret.filterNot(_.probability == 0)
-        ret
+             //        ret.filterNot(_.probability == 0)
+             ret
+         } else*/ Seq.empty[(String, Double, String)]
     }
 
     def getFactualPlaces(factualRequest: FactualPlaceRequest, includeFacets: Boolean = true) = {
