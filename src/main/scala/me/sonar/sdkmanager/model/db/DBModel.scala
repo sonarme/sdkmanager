@@ -58,6 +58,7 @@ trait DB extends _Component with Profile {
     lazy val ddl = Apps.ddl ++ ProfileAttributes.ddl ++ Campaigns.ddl ++ GeofenceEvents.ddl ++ FactualGeopulseResponses.ddl ++ AppMetadatas.ddl
 
     val unixTimestamp = SimpleFunction.unary[DateTime, Long]("UNIX_TIMESTAMP")
+    val hour = SimpleFunction.unary[DateTime, Int]("HOUR")
 
     sealed abstract class Interval(val sql: String)
 
