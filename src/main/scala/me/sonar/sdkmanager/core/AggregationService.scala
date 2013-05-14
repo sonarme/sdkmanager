@@ -28,7 +28,7 @@ class AggregationService extends DB {
 
     /*geofenceEventDao.aggregate(appIdFilter(appId), visitors, visitorsPerHourOfDay).results("geofenceId", "hourOfDay", "visitorsPerHourOfDay")*/
 
-    def aggregateDwellTime(appId: String): Map[String, CountStats] =
+    def aggregateDwellTime(appId: String, geofenceListId: String): Map[String, CountStats] =
         db withSession {
             implicit session: Session =>
                 val filteredEventsWithDwellTime = (for {
@@ -45,8 +45,19 @@ class AggregationService extends DB {
         }
 
     /*geofenceEventDao.aggregate(appIdFilter(appId), dwellTime, dwellTimeAvg).results("geofenceId", "dwellTime")*/
+    def aggregateVisits(appId: String, geofenceListId: String): Iterable[(Int, Double)] =
+        db withSession {
+            implicit session: Session =>
+                val filteredEventsWithDwellTime = (for {
+                    gfl <- GeofenceLists if gfl.appId === appId && gfl.name === geofenceListId
+                    gfl2place <- GeofenceListsToPlaces if gfl2place.geofenceListId === gfl.id
+                    ge <- GeofenceEvents if ge.appId === appId && gfl2place.placeId === ge.geofenceId
+                } yield ge)
+                println(filteredEventsWithDwellTime.list())
+                null
+        }
 
-    def aggregateVisitsPerVisitor(appId: String): Map[String, CountStats] = db withSession {
+    def aggregateVisitsPerVisitor(appId: String, geofenceListId: String): Map[String, CountStats] = db withSession {
         implicit session: Session =>
             val filteredEventsPerVisitor = (for {
                 ge <- GeofenceEvents if ge.appId === appId

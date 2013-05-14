@@ -43,9 +43,7 @@ case class AppMetadata(
                               platform: Platform,
                               category: String) extends StringEntity[AppMetadata]
 
-case class Place(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
-
-case class GeofenceListToPlace(var id: Long, name: String, lat: Double, lng: Double, `type`: PlaceType) extends Entity[Place]
+case class Place(var id: String, name: String, lat: Double, lng: Double, `type`: PlaceType) extends StringEntity[Place]
 
 case class GeofenceList(var id: Long, var appId: String, var name: String) extends Entity[GeofenceList]
 
@@ -251,7 +249,7 @@ trait DB extends _Component with Profile {
         def * = id ~ platform ~ category <>(AppMetadata, AppMetadata.unapply _)
     }
 
-    object GeofenceLists extends Mapper[GeofenceList]("GeofenceList") {
+    object GeofenceLists extends Mapper[GeofenceList]("GeofenceLists") {
 
         def appId = column[String]("appId")
 
@@ -262,18 +260,18 @@ trait DB extends _Component with Profile {
         def places = GeofenceListsToPlaces.filter(_.geofenceListId === id).flatMap(_.place)
     }
 
-    object GeofenceListsToPlaces extends Table[(Long, Long)]("GeofenceListsToPlaces") {
+    object GeofenceListsToPlaces extends Table[(Long, String)]("GeofenceListsToPlaces") {
 
         def geofenceListId = column[Long]("geofenceListId")
 
-        def placeId = column[Long]("placeId")
+        def placeId = column[String]("placeId")
 
         def * = geofenceListId ~ placeId
 
         def place = foreignKey("placeId_fk", placeId, Places)(b => b.id)
     }
 
-    object Places extends Mapper[Place]("Places") {
+    object Places extends StringMapper[Place]("Places") {
 
         def name = column[String]("name")
 

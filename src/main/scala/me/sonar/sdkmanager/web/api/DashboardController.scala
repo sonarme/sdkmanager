@@ -53,16 +53,20 @@ class DashboardController extends Logging with DB {
     }
 
 
-    @RequestMapping(value = Array("analytics/countStats"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("analytics/places"), method = Array(RequestMethod.GET))
     @ResponseBody
     def countStats(@RequestParam("type") `type`: String,
+                   @RequestParam("agg") agg: String,
+                   @RequestParam("group") group: String,
+                   @RequestParam("geofenceListId") geofenceListId: String,
                    @RequestParam("appId") appId: String) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
             `type` match {
-                case "dwelltime" =>
-                    aggregationService.aggregateDwellTime(appId)
-                case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId)
+                case "dwellTime" =>
+                    aggregationService.aggregateDwellTime(appId, geofenceListId)
+                case "visits" => aggregationService.aggregateVisits(appId, geofenceListId)
+                case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId, geofenceListId)
             }
     }
 

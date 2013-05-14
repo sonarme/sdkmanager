@@ -8,7 +8,7 @@ class AggregationServiceTest extends SpringComponentTest {
     var service: AggregationService = _
 
     "the service" should "aggregate values" in {
-        println(service.aggregateDwellTime("demo"))
-        println(service.aggregateVisitsPerHourOfDay("demo"))
+        //        println(service.aggregateDwellTime("demo"))
+        println(service.aggregateVisits("test", "walmart"))
     }
 }
