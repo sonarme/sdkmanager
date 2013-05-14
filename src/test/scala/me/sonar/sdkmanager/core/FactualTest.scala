@@ -45,7 +45,7 @@ class FactualTest extends SpringComponentTest {
         assert(List("MA", "NH").contains(manhburger.places.getData.head.get("region")))
         assert(manhburger.facets.getData != null)
 
-        val request4 = new FactualPlaceRequest(query = None, filter = Option(FactualFilter(category = Option(List("social", "bar")), country = Option(List("US","CA")))))
+        val request4 = new FactualPlaceRequest(query = None, filter = Option(FactualFilter(category = Option(List("social", "bar")), country = Option(List("US", "CA")))))
         val socialAndBar = factualService.getFactualPlaces(request4)
         assert(socialAndBar.places.getData != null)
 
@@ -59,7 +59,6 @@ class FactualTest extends SpringComponentTest {
         val cat2 = factualService.getCategoryFromId("385")
         assert(cat2 === "Gyms and Fitness Centers")
     }
-    */
     /*
     "factualService" should "return all Walmart locations" in {
         val places = List("MA", "CT", "NY", "NJ", "FL", "CA", "KS", "VA", "WA").map {
@@ -74,7 +73,6 @@ class FactualTest extends SpringComponentTest {
         FileUtils.writeStringToFile(new File("/Users/rogchang/Desktop/walmart.json"), json)
     }
 
-    /*
     "factualService" should "return all Target locations" in {
         val places = List("MA", "CT", "NY", "NJ", "FL", "CA", "KS", "VA", "WA").map {
             region => {

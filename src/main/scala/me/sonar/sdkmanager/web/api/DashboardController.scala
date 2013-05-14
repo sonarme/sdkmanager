@@ -6,11 +6,16 @@ import org.springframework.web.bind.annotation._
 import scala.Array
 import me.sonar.sdkmanager.model.api.{GeofenceListRequest, GeofenceListsResponse}
 import me.sonar.sdkmanager.model.db.{DB, GeofenceList}
+import org.springframework.beans.factory.annotation.Autowired
+import me.sonar.sdkmanager.core.AggregationService
 
 @Controller
 class DashboardController extends Logging with DB {
 
     import profile.simple._
+
+    @Autowired
+    var aggregationService: AggregationService = _
 
     @RequestMapping(value = Array("/geofencelists/{appId}"), method = Array(RequestMethod.GET))
     @ResponseBody
@@ -45,5 +50,31 @@ class DashboardController extends Logging with DB {
         implicit session: Session =>
         // TODO: security etc.
             GeofenceLists.update(GeofenceList(id, geofenceList.appId, geofenceList.name))
+    }
+
+
+    @RequestMapping(value = Array("analytics/countStats"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def countStats(@RequestParam("type") `type`: String,
+                   @RequestParam("appId") appId: String) = db.withTransaction {
+        implicit session: Session =>
+        // TODO: security etc.
+            `type` match {
+                case "dwelltime" =>
+                    aggregationService.aggregateDwellTime(appId)
+                case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId)
+            }
+    }
+
+    @RequestMapping(value = Array("analytics/timeStats"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def timeStats(@RequestParam("type") `type`: String,
+                  @RequestParam("appId") appId: String) = db.withTransaction {
+        implicit session: Session =>
+        // TODO: security etc.
+            `type` match {
+                case "visitors" => aggregationService.aggregateVisitorsPerHourOfDay(appId)
+                case "visits" => aggregationService.aggregateVisitsPerHourOfDay(appId)
+            }
     }
 }

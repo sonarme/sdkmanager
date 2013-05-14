@@ -77,42 +77,44 @@ class FactualService extends Segmentation with DB {
             } else "{}"
         }
 
-        /* val json = om.readValue(response, classOf[JsonNode])
-         if (json.get("response") != null &&  json.get("response").get("data") != null && json.get("response").get("data").get("demographics") != null && json.get("response").get("data").get("demographics").get("education") != null) {
-             val demographics = json.get("response").get("data").get("demographics")
-             val levelAttained = demographics.get("education").get("level_attained")
-             val genderDistribution = Seq("male", "female").map {
-                 case e => e -> (demographics.get("age_and_sex").get(e).asDouble() / 100.0)
-             }.toMap[String, Double]
-             val educationMap = genderDistribution.keys flatMap {
-                 g => levelAttained.get(g).fieldMap
-             } groupBy (_._1) mapValues (
-                     _.map(_._2).sum
-                     )
-             val educationTotal = educationMap.values.sum
-             val eds = educationMap mapValues (_ / educationTotal)
-             val educationAttributes = eds.toProfileAttributes("education")
-             val ageTranslated = genderDistribution.keys flatMap {
-                 g => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
-                     case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability
-                 }
-             }
-             val ageMap = ageTranslated.groupBy(_._1).mapValues(
-                 _.map(_._2).sum
-             )
-             val ageAttributes = ageMap.toProfileAttributes("age")
-             val genderAttributes = genderDistribution.toProfileAttributes("gender")
-             val medianIncome = demographics.get("income").get("median_income").get("amount").asInt()
-             val incomeBucket = createSegments(medianIncome, incomeBuckets, None).head.name
-             val housingAttributes = demographics.get("housing").get("household_type").fieldMap.toProfileAttributes("household")
-             val ethnicityAttributes = demographics.get("race_and_ethnicity").get("race").fieldMap.toProfileAttributes("ethnicity")
-             val ret = Seq(
-                 (incomeBucket, 0.7, "income")
-             ) ++ ageAttributes ++ genderAttributes ++ housingAttributes ++ ethnicityAttributes ++ educationAttributes
+        val json = om.readValue(response, classOf[JsonNode])
+        if (json.get("response") != null && json.get("response").get("data") != null && json.get("response").get("data").get("demographics") != null && json.get("response").get("data").get("education") != null) try {
+            val demographics = json.get("response").get("data").get("demographics")
+            val levelAttained = demographics.get("education").get("level_attained")
+            val genderDistribution = Seq("male", "female").map {
+                case e => e -> (demographics.get("age_and_sex").get(e).asDouble() / 100.0)
+            }.toMap[String, Double]
+            val educationMap = genderDistribution.keys flatMap {
+                g => levelAttained.get(g).fieldMap
+            } groupBy (_._1) mapValues (
+                    _.map(_._2).sum
+                    )
+            val educationTotal = educationMap.values.sum
+            val eds = educationMap mapValues (_ / educationTotal)
+            val educationAttributes = eds.toProfileAttributes("education")
+            val ageTranslated = genderDistribution.keys flatMap {
+                g => demographics.get("age_and_sex").get("age_ranges_by_sex").get(g).fieldMap.map {
+                    case (nodeName, nodeProbability) => ageTranslation(nodeName) -> nodeProbability
+                }
+            }
+            val ageMap = ageTranslated.groupBy(_._1).mapValues(
+                _.map(_._2).sum
+            )
+            val ageAttributes = ageMap.toProfileAttributes("age")
+            val genderAttributes = genderDistribution.toProfileAttributes("gender")
+            val medianIncome = demographics.get("income").get("median_income").get("amount").asInt()
+            val incomeBucket = createSegments(medianIncome, incomeBuckets, None).head.name
+            val housingAttributes = demographics.get("housing").get("household_type").fieldMap.toProfileAttributes("household")
+            val ethnicityAttributes = demographics.get("race_and_ethnicity").get("race").fieldMap.toProfileAttributes("ethnicity")
+            val ret = Seq(
+                (incomeBucket, 0.7, "income")
+            ) ++ ageAttributes ++ genderAttributes ++ housingAttributes ++ ethnicityAttributes ++ educationAttributes
 
-             //        ret.filterNot(_.probability == 0)
-             ret
-         } else*/ Seq.empty[(String, Double, String)]
+            //        ret.filterNot(_.probability == 0)
+            ret
+        } catch {
+            case e: Exception => throw new RuntimeException("" + json, e)
+        } else Seq.empty[(String, Double, String)]
     }
 
     def getFactualPlaces(factualRequest: FactualPlaceRequest, includeFacets: Boolean = true) = {
