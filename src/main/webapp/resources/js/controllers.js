@@ -167,10 +167,14 @@ angular.module('dashboard.controllers', [])
                 agg: $scope.current[aType].aggregate.id,
                 group: $scope.current[aType].time.id,
                 geofenceListId: 'walmart',
-                appId: 'test'}, function (data) {
-                alert("got data")
-                $scope[aType] = data;
-            })
+                appId: 'test'},
+                function (data) {
+                    $scope[aType] = data;
+                },
+                function (err) {
+                    alert("error");
+                }
+            )
         }
 
         $scope.results = resultsA;
