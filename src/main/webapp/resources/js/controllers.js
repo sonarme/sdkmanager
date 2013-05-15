@@ -3,8 +3,178 @@
 /* Controllers */
 
 angular.module('dashboard.controllers', [])
-    .controller('Analytics', ['$scope', function ($scope) {
+    .controller('AnalyticsCtrl', ['$scope', 'Analytics', function ($scope, Analytics) {
+        $scope.placeFilters = {
+            measures: [
+                {name: 'Dwell time', id: 'dwelltime'},
+                {name: 'Visits', id: 'visits'}
+            ],
+            aggregates: [
+                {name: 'Unique', id: 'unique'},
+                {name: 'Total', id: 'total'},
+                {name: 'Average', id: 'average'}
+            ],
+            displays: [
+                {name: 'Pie', id: 'pie'},
+                {name: 'Line', id: 'line'},
+                {name: 'Map', id: 'map'}
+            ],
+            times: [
+                {name: 'Time of Day', id:'timeOfDay'},
+                {name: 'Hour', id: 'hour'},
+                {name: 'Day', id: 'day'},
+                {name: 'Week', id: 'week'},
+                {name: 'Month', id: 'month'}
+            ]
+        }
+        $scope.customerFilters = {
+            measures: [
+                {name: 'Gender', id: 'gender'},
+                {name: 'Age', id: 'age'},
+                {name: 'HHI', id: 'hhi'},
+                {name: 'Education Level', id: 'education'},
+                {name: 'Relationship Status', id: 'relationship'},
+                {name: 'Interests', id: 'interests'}
+            ]
+        }
 
+        $scope.messageFilters = {
+            measures: [
+                {name: 'Messages Sent', id: 'messages_sent'},
+                {name: 'Messages Opened', id: 'messages_opened'}
+            ],
+            aggregates: [
+                {name: 'Unique', id: 'unique'},
+                {name: 'Total', id: 'total'},
+                {name: 'Average', id: 'average'}
+            ],
+            displays: [
+                {name: 'Pie', id: 'pie'},
+                {name: 'Line', id: 'line'},
+                {name: 'Map', id: 'map'}
+            ],
+            times: [
+                {name: 'Time of Day', id:'timeOfDay'},
+                {name: 'Hour', id: 'hour'},
+                {name: 'Day', id: 'day'},
+                {name: 'Week', id: 'week'},
+                {name: 'Month', id: 'month'}
+            ]
+        }
+
+        $scope.current = {
+            places: {
+                measure: $scope.placeFilters.measures[0],
+                aggregate: $scope.placeFilters.aggregates[0],
+                display: $scope.placeFilters.displays[0],
+                time: $scope.placeFilters.times[0]
+            },
+            customers: {
+                measure: $scope.customerFilters.measures[0]
+            },
+            messages: {
+                measure: $scope.messageFilters.measures[0],
+                aggregate: $scope.messageFilters.aggregates[0],
+                display: $scope.messageFilters.displays[0],
+                time: $scope.messageFilters.times[0]
+            }
+        }
+
+        var placeDwellTime = {
+            total: 454,
+            entries: [
+                {"time": 0, "count": 1922},
+                {"time": 1, "count": 32949},
+                {"time": 2, "count": 21630},
+                {"time": 3, "count": 36841},
+                {"time": 4, "count": 33508},
+                {"time": 5, "count": 56504},
+                {"time": 6, "count": 24394},
+                {"time": 7, "count": 30258},
+                {"time": 8, "count": 14029},
+                {"time": 9, "count": 13620},
+                {"time": 10, "count": 25175},
+                {"time": 11, "count": 3119},
+                {"time": 12, "count": 19300},
+                {"time": 13, "count": 22578},
+                {"time": 14, "count": 31905},
+                {"time": 15, "count": 14207},
+                {"time": 16, "count": 14270},
+                {"time": 17, "count": 50658},
+                {"time": 18, "count": 17874},
+                {"time": 19, "count": 21285},
+                {"time": 20, "count": 35873},
+                {"time": 21, "count": 3483},
+                {"time": 22, "count": 46587},
+                {"time": 23, "count": 67019}
+            ]
+        };
+
+        var resultsA = {
+            facets: {
+                Product: {
+                    _type: "terms",
+                    missing: 0,
+                    total: 454,
+                    other: 0,
+                    terms: [
+                        {
+                            term: "Prod-A",
+                            count: 306
+                        },
+                        {
+                            term: "Prod-B",
+                            count: 148
+                        },
+                        {
+                            term: "Prod-C",
+                            count: 62
+                        }
+                    ]
+                },
+                Times: {
+                    _type: "date_histogram",
+                    entries: [
+                        {
+                            time: 1341100800000,
+                            count: 9
+                        },
+                        {
+                            time: 1343779200000,
+                            count: 32
+                        },
+                        {
+                            time: 1346457600000,
+                            count: 78
+                        },
+                        {
+                            time: 1349049600000,
+                            count: 45
+                        },
+                        {
+                            time: 1351728000000,
+                            count: 134
+                        }
+                    ]
+                }
+            }
+        };
+
+        $scope.changeFilter = function (aType, attribute, filter) {
+            $scope.current[aType][attribute] = filter;
+            Analytics.get({aType: aType,
+                type: $scope.current[aType].measure.id,
+                agg: $scope.current[aType].aggregate.id,
+                group: $scope.current[aType].time.id,
+                geofenceListId: 'walmart',
+                appId: 'test'}, function (data) {
+                alert("got data")
+                $scope[aType] = data;
+            })
+        }
+
+        $scope.results = resultsA;
+        $scope.places = placeDwellTime;
     }])
     .controller('CampaignsCtrl', ['$scope', 'Campaign', function ($scope, Campaign) {
         Campaign.query(null, function (data) {
@@ -63,8 +233,8 @@ angular.module('dashboard.controllers', [])
             {name: "Specific date & time", id: false}
         ]
         $scope.asap = true;
-        
-        GeofenceList.get({appId:"testApp"}, function(data) {
+
+        GeofenceList.get({appId: "testApp"}, function (data) {
             $scope.geofenceLists = data.list;
             for (var i = 0; i < data.length; ++i) {
                 $scope.attributes.push(
@@ -72,7 +242,7 @@ angular.module('dashboard.controllers', [])
                 )
             }
         })
-        
+
         $scope.dowAll = false;
         $scope.clauses = [
 
@@ -265,11 +435,11 @@ angular.module('dashboard.controllers', [])
             geofence.appId = "testApp"; //todo: change this
             geofence.places = []
             var place;
-            for (var i=0; i<$scope.placesAdded.length; i++) {
+            for (var i = 0; i < $scope.placesAdded.length; i++) {
                 place = $scope.placesAdded[i];
-                geofence.places.push({id:"factual-" + place.factual_id, name:place.name, lat:place.latitude, lng:place.longitude, type:"factual"})
+                geofence.places.push({id: "factual-" + place.factual_id, name: place.name, lat: place.latitude, lng: place.longitude, type: "factual"})
             }
-            geofence.$save(function(data) {
+            geofence.$save(function (data) {
                 console.log(data);
                 alert("Saved " + name);
             })

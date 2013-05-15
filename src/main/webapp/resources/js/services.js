@@ -19,3 +19,6 @@ angular.module('dashboard.services', ['ngResource'])
     .factory('Factual', function ($resource) {
         return $resource('/api/factual', {}, {})
     })
+    .factory('Analytics', function ($resource) {
+        return $resource('/api/analytics/:aType', {}, {})
+    })
