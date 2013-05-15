@@ -62,14 +62,7 @@ class DashboardController extends Logging with DB {
                     @RequestParam("appId") appId: String) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
-            val data = `type` match {
-                /*
-                                case PlacesChartType.dwellTime =>
-                                    aggregationService.aggregateDwellTime(appId, geofenceListId, agg, group)
-                */
-                case PlacesChartType.visits => aggregationService.aggregateVisits(`type`, appId, geofenceListId, agg, group) /*
-                case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId, geofenceListId)*/
-            }
+            val data = aggregationService.aggregateVisits(`type`, appId, geofenceListId, agg, group)
             Map("entries" -> data)
     }
 
