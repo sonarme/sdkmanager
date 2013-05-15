@@ -55,18 +55,23 @@ class DashboardController extends Logging with DB {
 
     @RequestMapping(value = Array("analytics/places"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def countStats(@RequestParam("type") `type`: String,
-                   @RequestParam("agg") agg: String,
-                   @RequestParam("group") group: String,
-                   @RequestParam("geofenceListId") geofenceListId: String,
-                   @RequestParam("appId") appId: String) = db.withTransaction {
+    def placesChart(@RequestParam("type") `type`: PlacesChartType,
+                    @RequestParam("agg") agg: AggregationType,
+                    @RequestParam("group") group: TimeGrouping,
+                    @RequestParam("geofenceListId") geofenceListId: String,
+                    @RequestParam("appId") appId: String) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
-            `type` match {
-                case "dwellTime" =>
-                    aggregationService.aggregateDwellTime(appId, geofenceListId)
-                case "visits" => aggregationService.aggregateVisits(appId, geofenceListId)
-                case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId, geofenceListId)
+            val data = `type` match {
+                /*
+                                case PlacesChartType.dwellTime =>
+                                    aggregationService.aggregateDwellTime(appId, geofenceListId, agg, group)
+                */
+                case PlacesChartType.visits => aggregationService.aggregateVisits(appId, geofenceListId, agg, group) /*
+                case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId, geofenceListId)*/
+            }
+            data.map {
+                case (x, y) => Coordinate(x, y)
             }
     }
 
@@ -81,4 +86,7 @@ class DashboardController extends Logging with DB {
                 case "visits" => aggregationService.aggregateVisitsPerHourOfDay(appId)
             }
     }
+
 }
+
+case class Coordinate(x: Number, y: Number)

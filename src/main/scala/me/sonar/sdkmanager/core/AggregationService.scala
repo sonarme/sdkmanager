@@ -2,6 +2,7 @@ package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
 import me.sonar.sdkmanager.model.db.DB
+import me.sonar.sdkmanager.web.api.{TimeGrouping, AggregationType}
 
 @Service
 class AggregationService extends DB {
@@ -28,7 +29,7 @@ class AggregationService extends DB {
 
     /*geofenceEventDao.aggregate(appIdFilter(appId), visitors, visitorsPerHourOfDay).results("geofenceId", "hourOfDay", "visitorsPerHourOfDay")*/
 
-    def aggregateDwellTime(appId: String, geofenceListId: String): Map[String, CountStats] =
+    def aggregateDwellTime(appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping): Map[String, CountStats] =
         db withSession {
             implicit session: Session =>
                 val filteredEventsWithDwellTime = (for {
@@ -45,7 +46,7 @@ class AggregationService extends DB {
         }
 
     /*geofenceEventDao.aggregate(appIdFilter(appId), dwellTime, dwellTimeAvg).results("geofenceId", "dwellTime")*/
-    def aggregateVisits(appId: String, geofenceListId: String): Iterable[(Int, Long)] =
+    def aggregateVisits(appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping): Iterable[(Int, Long)] =
         db withSession {
             implicit session: Session =>
                 val filteredEventsWithDwellTime = (for {
@@ -55,7 +56,12 @@ class AggregationService extends DB {
                 } yield (unixTimestamp(ge.exiting) - unixTimestamp(ge.entering), hour(ge.entering)))
                 val result = filteredEventsWithDwellTime.groupBy(_._2).map {
                     case (absHour, groupings) =>
-                        (absHour, groupings.map(_._1).avg.getOrElse(0L))
+                        val dwellTimes = groupings.map(_._1)
+                        val aggregated = agg match {
+                            case AggregationType.average => dwellTimes.avg
+                            case AggregationType.total => dwellTimes.sum
+                        }
+                        (absHour, aggregated.getOrElse(0L))
                 }
                 result.list()
         }
