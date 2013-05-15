@@ -3,7 +3,44 @@
 /* Controllers */
 
 angular.module('dashboard.controllers', [])
-    .controller('AnalyticsCtrl', ['$scope', 'Analytics', function ($scope, Analytics) {
+    .controller('AnalyticsCtrl', ['$scope', 'Analytics', 'GeofenceList', function ($scope, Analytics, GeofenceList) {
+        $scope.geofenceListId = "walmart"
+        $scope.appId = "test"
+
+        $scope.filters = {
+            what: {
+                actionTypes: [
+                    {name: 'Targeted by', id: 'targeted_by'},
+                    {name: 'Received message', id: 'received_message'}
+                ],
+                campaigns: [
+                    {name: 'Like BigMac Prompt', id: 'like_bigmac_prompt'},
+                    {name: 'Redeemed Coupon', id: 'redeemed_coupon'}
+                ]
+            },
+            where : [
+                {name: 'All Places', id: 'all_places'}
+            ],
+            when : [
+                {name: 'Past 96 Hours', id: 'past_96_hours'},
+                {name: 'Past 30 Days', id: 'past_30_days'},
+                {name: 'Past 24 Weeks', id: 'past_24_weeks'},
+                {name: 'Past 12 Months', id: 'past_12_months'},
+                {name: 'Pick a Date Range...', id: 'pick_a_date_range'}
+            ]
+        }
+
+        GeofenceList.get({appId: $scope.appId}, function (data) {
+            if(data && data.list) {
+                var list = data.list;
+                for (var i = 0; i < list.length; ++i) {
+                    $scope.filters.where.push(
+                        {name: list[i].name, id: list[i].id}
+                    )
+                }
+            }
+        })
+
         $scope.placeFilters = {
             measures: [
                 {name: 'Dwell time', id: 'dwelltime'},
@@ -13,12 +50,12 @@ angular.module('dashboard.controllers', [])
                 {name: 'Unique', id: 'unique'},
                 {name: 'Total', id: 'total'},
                 {name: 'Average', id: 'average'}
-            ],
+            ], /*
             displays: [
                 {name: 'Pie', id: 'pie'},
                 {name: 'Line', id: 'line'},
                 {name: 'Map', id: 'map'}
-            ],
+            ],*/
             times: [
                 {name: 'Time of Day', id:'timeOfDay'},
                 {name: 'Hour', id: 'hour'},
@@ -66,7 +103,7 @@ angular.module('dashboard.controllers', [])
             places: {
                 measure: $scope.placeFilters.measures[0],
                 aggregate: $scope.placeFilters.aggregates[0],
-                display: $scope.placeFilters.displays[0],
+//                display: $scope.placeFilters.displays[0],
                 time: $scope.placeFilters.times[0]
             },
             customers: {
@@ -163,11 +200,11 @@ angular.module('dashboard.controllers', [])
         $scope.changeFilter = function (aType, attribute, filter) {
             $scope.current[aType][attribute] = filter;
             Analytics.get({aType: aType,
-                type: $scope.current[aType].measure.id,
-                agg: $scope.current[aType].aggregate.id,
-                group: $scope.current[aType].time.id,
-                geofenceListId: 'walmart',
-                appId: 'test'},
+                type: $scope.current[aType].measure ? $scope.current[aType].measure.id : "",
+                agg: $scope.current[aType].aggregate ? $scope.current[aType].aggregate.id : "",
+                group: $scope.current[aType].time ? $scope.current[aType].time.id : "",
+                geofenceListId: $scope.geofenceListId,
+                appId: $scope.appId},
                 function (data) {
                     $scope[aType] = data;
                 },
@@ -238,7 +275,7 @@ angular.module('dashboard.controllers', [])
         ]
         $scope.asap = true;
 
-        GeofenceList.get({appId: "testApp"}, function (data) {
+        GeofenceList.get({appId: "test"}, function (data) {
             $scope.geofenceLists = data.list;
             for (var i = 0; i < data.length; ++i) {
                 $scope.attributes.push(
@@ -450,5 +487,5 @@ angular.module('dashboard.controllers', [])
         }
     }])
     .controller('GeofenceListsCtrl', ['$scope', 'GeofenceList', function ($scope, GeofenceList) {
-        $scope.geofenceLists = GeofenceList.get({appId: "testApp"})
+        $scope.geofenceLists = GeofenceList.get({appId: "test"})
     }]);
