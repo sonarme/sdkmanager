@@ -2,7 +2,7 @@ package me.sonar.sdkmanager.core
 
 import org.springframework.stereotype.Service
 import me.sonar.sdkmanager.model.db.DB
-import me.sonar.sdkmanager.web.api.{TimeGrouping, AggregationType}
+import me.sonar.sdkmanager.web.api.{PlacesChartType, TimeGrouping, AggregationType}
 import org.scala_tools.time.Imports._
 import scala.slick.session.Database
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
@@ -52,7 +52,7 @@ class AggregationService extends DB {
 
     implicit val getSupplierResult = GetResult(r => AggregationResult(r.nextLong(), r.nextLong()))
 
-    def aggregateVisits(appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping) =
+    def aggregateVisits(chartType: PlacesChartType, appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping) =
         db withSession {
             implicit session: Session =>
             // TODO: hacky
@@ -63,8 +63,16 @@ class AggregationService extends DB {
                     case TimeGrouping.timeOfDay => "HOUR(ge.entering)"
                     case TimeGrouping.week => "UNIX_TIMESTAMP(DATE_ADD(DATE(ge.entering), INTERVAL(1-DAYOFWEEK(ge.entering)) DAY)) * 1000"
                 }
-
-                val sql = """select """ + grouper + """ as grouper, avg(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.name=? group by grouper order by grouper desc limit 25"""
+                val aggregator = agg match {
+                    case AggregationType.average => "avg"
+                    case AggregationType.total => "sum"
+                    case AggregationType.unique => "avg"
+                }
+                val charter = chartType match {
+                    case PlacesChartType.visits => "UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)"
+                    case PlacesChartType.dwellTime => "UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)"
+                }
+                val sql = """select """ + grouper + """ as grouper, """ + aggregator + """(""" + charter + """) from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.name=? group by grouper order by grouper desc limit 25"""
 
                 Q.query[(String, String), AggregationResult](sql).list(appId, geofenceListId)
 

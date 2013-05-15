@@ -67,7 +67,7 @@ class DashboardController extends Logging with DB {
                                 case PlacesChartType.dwellTime =>
                                     aggregationService.aggregateDwellTime(appId, geofenceListId, agg, group)
                 */
-                case PlacesChartType.visits => aggregationService.aggregateVisits(appId, geofenceListId, agg, group) /*
+                case PlacesChartType.visits => aggregationService.aggregateVisits(`type`, appId, geofenceListId, agg, group) /*
                 case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId, geofenceListId)*/
             }
             Map("entries" -> data)
