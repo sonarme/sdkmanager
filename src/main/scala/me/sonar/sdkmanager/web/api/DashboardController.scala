@@ -70,9 +70,7 @@ class DashboardController extends Logging with DB {
                 case PlacesChartType.visits => aggregationService.aggregateVisits(appId, geofenceListId, agg, group) /*
                 case "visitsPerVisitor" => aggregationService.aggregateVisitsPerVisitor(appId, geofenceListId)*/
             }
-            Map("entries" -> data.map {
-                case (x, y) => Coordinate(x, y)
-            })
+            Map("entries" -> data)
     }
 
     @RequestMapping(value = Array("analytics/timeStats"), method = Array(RequestMethod.GET))
@@ -88,5 +86,3 @@ class DashboardController extends Logging with DB {
     }
 
 }
-
-case class Coordinate(time: Number, count: Number)

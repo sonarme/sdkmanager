@@ -59,6 +59,10 @@ trait DB extends _Component with Profile {
 
     val unixTimestamp = SimpleFunction.unary[DateTime, Long]("UNIX_TIMESTAMP")
     val hour = SimpleFunction.unary[DateTime, Int]("HOUR")
+    val year = SimpleFunction.unary[DateTime, Int]("YEAR")
+    val week = SimpleFunction.unary[DateTime, Int]("WEEK")
+    val month = SimpleFunction.unary[DateTime, Int]("MONTH")
+    val dayOfYear = SimpleFunction.unary[DateTime, Int]("DAYOFYEAR")
 
     sealed abstract class Interval(val sql: String)
 

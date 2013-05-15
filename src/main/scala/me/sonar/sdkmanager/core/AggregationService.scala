@@ -3,6 +3,9 @@ package me.sonar.sdkmanager.core
 import org.springframework.stereotype.Service
 import me.sonar.sdkmanager.model.db.DB
 import me.sonar.sdkmanager.web.api.{TimeGrouping, AggregationType}
+import org.scala_tools.time.Imports._
+import scala.slick.session.Database
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 
 @Service
 class AggregationService extends DB {
@@ -45,25 +48,26 @@ class AggregationService extends DB {
                 results
         }
 
-    /*geofenceEventDao.aggregate(appIdFilter(appId), dwellTime, dwellTimeAvg).results("geofenceId", "dwellTime")*/
-    def aggregateVisits(appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping): Iterable[(Int, Long)] =
+    case class AggregationResult(time: Long, data: Long)
+
+    implicit val getSupplierResult = GetResult(r => AggregationResult(r.nextLong(), r.nextLong()))
+
+    def aggregateVisits(appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping) =
         db withSession {
             implicit session: Session =>
-                val filteredEventsWithDwellTime = (for {
-                    gfl <- GeofenceLists if gfl.appId === appId && gfl.name === geofenceListId
-                    gfl2place <- GeofenceListsToPlaces if gfl2place.geofenceListId === gfl.id
-                    ge <- GeofenceEvents if ge.appId === appId && gfl2place.placeId === ge.geofenceId
-                } yield (unixTimestamp(ge.exiting) - unixTimestamp(ge.entering), hour(ge.entering)))
-                val result = filteredEventsWithDwellTime.groupBy(_._2).map {
-                    case (absHour, groupings) =>
-                        val dwellTimes = groupings.map(_._1)
-                        val aggregated = agg match {
-                            case AggregationType.average => dwellTimes.avg
-                            case AggregationType.total => dwellTimes.sum
-                        }
-                        (absHour, aggregated.getOrElse(0L))
+            // TODO: hacky
+                val grouper = group match {
+                    case TimeGrouping.hour => "UNIX_TIMESTAMP(ge.entering) / 1000 / 60 / 60 * 1000 * 60 * 60"
+                    case TimeGrouping.month => "UNIX_TIMESTAMP(LAST_DAY(ge.entering) - INTERVAL 1 MONTH + INTERVAL 1 DAY)"
+                    case TimeGrouping.timeOfDay => "HOUR(ge.entering)"
+                    case TimeGrouping.week => "UNIX_TIMESTAMP(DATE_ADD(ge.entering, INTERVAL(1-DAYOFWEEK(ge.entering)) DAY))"
                 }
-                result.list()
+
+                val sql = """select """ + grouper + """ as grouper, avg(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.name=? group by grouper"""
+
+                Q.query[(String, String), AggregationResult](sql).list(appId, geofenceListId)
+
+
         }
 
     def aggregateVisitsPerVisitor(appId: String, geofenceListId: String): Map[String, CountStats] = db withSession {
