@@ -61,7 +61,7 @@ class AggregationService extends DB {
                     case TimeGrouping.day => "UNIX_TIMESTAMP(ge.entering) / 60 / 60 / 24 * 60 * 60 * 24 * 1000"
                     case TimeGrouping.month => "UNIX_TIMESTAMP(LAST_DAY(ge.entering) - INTERVAL 1 MONTH + INTERVAL 1 DAY) * 1000"
                     case TimeGrouping.timeOfDay => "HOUR(ge.entering)"
-                    case TimeGrouping.week => "UNIX_TIMESTAMP(DATE_ADD(ge.entering, INTERVAL(1-DAYOFWEEK(ge.entering)) DAY)) * 1000"
+                    case TimeGrouping.week => "UNIX_TIMESTAMP(DATE_ADD(DATE(ge.entering), INTERVAL(1-DAYOFWEEK(ge.entering)) DAY)) * 1000"
                 }
 
                 val sql = """select """ + grouper + """ as grouper, avg(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.name=? group by grouper"""
