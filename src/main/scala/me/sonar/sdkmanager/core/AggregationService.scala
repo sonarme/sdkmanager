@@ -70,7 +70,7 @@ class AggregationService extends DB {
                 }
                 val charter = chartType match {
                     case PlacesChartType.visits => "UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)"
-                    case PlacesChartType.dwellTime => "UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)"
+                    case PlacesChartType.dwelltime => "UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)"
                 }
                 val sql = """select """ + grouper + """ as grouper, """ + aggregator + """(""" + charter + """) from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.name=? group by grouper order by grouper desc limit 25"""
 
