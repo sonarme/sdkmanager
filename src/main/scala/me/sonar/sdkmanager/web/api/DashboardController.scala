@@ -58,11 +58,12 @@ class DashboardController extends Logging with DB {
     def placesChart(@RequestParam("type") `type`: PlacesChartType,
                     @RequestParam("agg") agg: AggregationType,
                     @RequestParam("group") group: TimeGrouping,
-                    @RequestParam("geofenceListId") geofenceListId: Long,
+                    @RequestParam("geofenceListId") geofenceListId: String,
                     @RequestParam("appId") appId: String) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
-            val data = aggregationService.aggregateVisits(`type`, appId, geofenceListId, agg, group)
+            val geofenceListIdLong = if (geofenceListId == "all_places") 0L else geofenceListId.toLong
+            val data = aggregationService.aggregateVisits(`type`, appId, geofenceListIdLong, agg, group)
             Map("entries" -> data)
     }
 
