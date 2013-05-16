@@ -17,40 +17,20 @@ class AggregationService extends DB {
             (for (pa <- ProfileAttributes if pa.`type` === `type`) yield pa).list()
     }
 
-    def aggregateVisitsPerHourOfDay(appId: String): Map[String, Map[Int, Int]] = db withSession {
-        implicit session: Session =>
-            val filteredEventsWithDwellTime = (for {
-                ge <- GeofenceEvents if ge.appId === appId
-            } yield (ge.geofenceId, ge.exiting, dateAdd(Hour)(ge.exiting, 1)))
-            println(filteredEventsWithDwellTime.list)
-            null
-    }
-
-    /*  geofenceEventDao.aggregate(appIdFilter(appId), visitsPerHourOfDay).results("geofenceId", "hourOfDay", "visitsPerHourOfDay")*/
-
-    def aggregateVisitorsPerHourOfDay(appId: String): Map[String, Map[Int, Int]] = null
-
-    /*geofenceEventDao.aggregate(appIdFilter(appId), visitors, visitorsPerHourOfDay).results("geofenceId", "hourOfDay", "visitorsPerHourOfDay")*/
-
-    def aggregateDwellTime(appId: String, geofenceListId: Long, agg: AggregationType, group: TimeGrouping): Map[String, CountStats] =
-        db withSession {
-            implicit session: Session =>
-                val filteredEventsWithDwellTime = (for {
-                    ge <- GeofenceEvents if ge.appId === appId
-                } yield (ge, unixTimestamp(ge.exiting) - unixTimestamp(ge.entering))).groupBy(_._1.geofenceId)
-                val dwellTimeStats = filteredEventsWithDwellTime.map {
-                    case (geofenceId, groupings) =>
-                        val dwellTimes = groupings.map(_._2)
-                        (geofenceId, dwellTimes.min.getOrElse(0L), dwellTimes.max.getOrElse(0L), dwellTimes.avg.getOrElse(0L))
-                }
-
-                val results = (for ((geofenceId, min, max, avg) <- dwellTimeStats.list()) yield geofenceId -> CountStats(min, max, avg)).toMap
-                results
-        }
-
     case class AggregationResult(time: Long, count: Long)
 
-    implicit val getSupplierResult = GetResult(r => AggregationResult(r.nextLong(), r.nextLong()))
+    case class SegmentationResult(term: String, count: Long)
+
+    implicit val getAggregationResult = GetResult(r => AggregationResult(r.nextLong(), r.nextLong()))
+    implicit val getSegmentationResult = GetResult(r => SegmentationResult(r.nextString(), r.nextLong()))
+
+    def aggregateCustomers(appId: String, geofenceListId: Long, attribute: String) = db withSession {
+        implicit session: Session =>
+            val sql = s"select pa.value, sum(pa.probability) as perVisitor from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join (select distinct appId, deviceId, geofenceId from GeofenceEvents) ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId join ProfileAttributes pa on pa.deviceId=ge.deviceId where gfl.appId=? and (gfl.id=? or 0=?) and pa.`type`=? group by pa.`value`"
+
+            Q.query[(String, Long, Long, String), SegmentationResult](sql).list(appId, geofenceListId, geofenceListId, attribute)
+
+    }
 
     def aggregateVisits(chartType: PlacesChartType, appId: String, geofenceListId: Long, agg: AggregationType, group: TimeGrouping) =
         db withSession {
@@ -78,23 +58,5 @@ class AggregationService extends DB {
 
         }
 
-    def aggregateVisitsPerVisitor(appId: String, geofenceListId: Long): Map[String, CountStats] = db withSession {
-        implicit session: Session =>
-            val filteredEventsPerVisitor = (for {
-                ge <- GeofenceEvents if ge.appId === appId
-            } yield (ge.geofenceId, ge.deviceId)).groupBy(identity)
-            val visitsPerGeofenceAndVisitor = filteredEventsPerVisitor.map {
-                case ((geofenceId, deviceId), visits) =>
-                    (geofenceId, visits.length)
-            }
-
-            val visitsPerGeofence = visitsPerGeofenceAndVisitor.groupBy(_._1).map {
-                case (geofenceId, groupings) =>
-                    val visitCounts = groupings.map(_._2)
-                    (geofenceId, visitCounts.min.getOrElse(0), visitCounts.max.getOrElse(0), visitCounts.avg.getOrElse(0))
-            }
-            val results = (for ((geofenceId, min, max, avg) <- visitsPerGeofence.list()) yield geofenceId -> CountStats(min, max, avg)).toMap
-            results
-    }
 
 }

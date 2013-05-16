@@ -67,16 +67,15 @@ class DashboardController extends Logging with DB {
             Map("entries" -> data)
     }
 
-    @RequestMapping(value = Array("analytics/timeStats"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("analytics/customers"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def timeStats(@RequestParam("type") `type`: String,
-                  @RequestParam("appId") appId: String) = db.withTransaction {
+    def customers(@RequestParam("appId") appId: String,
+                  @RequestParam("geofenceListId") geofenceListId: String,
+                  @RequestParam("type") attribute: String) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
-            `type` match {
-                case "visitors" => aggregationService.aggregateVisitorsPerHourOfDay(appId)
-                case "visits" => aggregationService.aggregateVisitsPerHourOfDay(appId)
-            }
+            val geofenceListIdLong = if (geofenceListId == "all_places") 0L else geofenceListId.toLong
+            Map("terms" -> aggregationService.aggregateCustomers(appId, geofenceListIdLong, attribute))
     }
 
 }
