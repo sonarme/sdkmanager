@@ -27,7 +27,7 @@ class DashboardController extends Logging with DB {
 
 
     @RequestMapping(value = Array("/geofencelist/{id}"), method = Array(RequestMethod.GET))
-    @RequestBody
+    @ResponseBody
     def geofenceList(@PathVariable("id") id: Long) = db.withTransaction {
         implicit session: Session =>
         // TODO: security
