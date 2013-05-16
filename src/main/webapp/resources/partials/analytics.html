@@ -13,21 +13,21 @@
                     <div class="controls">
                         <div class="btn-group">
                             <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                                {{filters.what.actionTypes[0].name}}
+                                {{current.filters.what_action.name}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="actionType in filters.what.actionTypes"><a>{{actionType.name}}</a>
+                                <li ng-repeat="action in filters.what_action"><a ng-click="changeFilter('what_action', action)">{{action.name}}</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="btn-group">
                             <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                                {{filters.what.campaigns[0].name}}
+                                {{current.filters.what_campaign.name}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="campaign in filters.what.campaigns"><a>{{campaign.name}}</a>
+                                <li ng-repeat="campaign in filters.what_campaign"><a ng-click="changeFilter('what_campaign', campaign)">{{campaign.name}}</a>
                                 </li>
                             </ul>
                         </div>
@@ -171,7 +171,7 @@
         <fs:donut
                 outer-radius="200"
                 duration="750"
-                bind="results.facets.Product"/>
+                bind="customers"/>
     </div>
 </div>
 

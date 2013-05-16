@@ -8,11 +8,11 @@ angular.module('dashboard.controllers', [])
         $scope.appId = "test"
 
         $scope.filters = {
-            actionTypes: [
+            what_action: [
                 {name: 'Targeted by', id: 'targeted_by'},
                 {name: 'Received message', id: 'received_message'}
             ],
-            campaigns: [
+            what_campaign: [
                 {name: 'Like BigMac Prompt', id: 'like_bigmac_prompt'},
                 {name: 'Redeemed Coupon', id: 'redeemed_coupon'}
             ],
@@ -88,7 +88,8 @@ angular.module('dashboard.controllers', [])
 
         $scope.current = {
             filters: {
-                what: {},
+                what_action: $scope.filters.what_action[0],
+                what_campaign: $scope.filters.what_campaign[0],
                 who: {},
                 where: $scope.filters.where[0],
                 when: $scope.filters.when[0]
@@ -112,26 +113,6 @@ angular.module('dashboard.controllers', [])
 
         var resultsA = {
             facets: {
-                Product: {
-                    _type: "terms",
-                    missing: 0,
-                    total: 454,
-                    other: 0,
-                    terms: [
-                        {
-                            term: "Prod-A",
-                            count: 306
-                        },
-                        {
-                            term: "Prod-B",
-                            count: 148
-                        },
-                        {
-                            term: "Prod-C",
-                            count: 62
-                        }
-                    ]
-                },
                 Times: {
                     _type: "date_histogram",
                     entries: [
@@ -162,7 +143,7 @@ angular.module('dashboard.controllers', [])
 
         $scope.changeFilter = function (fType, filter) {
             $scope.current.filters[fType] = filter
-            getAnalytics('places')
+            refreshAnalytics()
         }
 
         $scope.changeAnalyticsFilter = function (aType, attribute, filter) {
@@ -197,7 +178,11 @@ angular.module('dashboard.controllers', [])
                     }
                 }
             })
+            refreshAnalytics()
+        }
+        function refreshAnalytics() {
             getAnalytics('places')
+            getAnalytics('customers')
         }
         init()
 
