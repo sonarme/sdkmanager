@@ -87,12 +87,12 @@
 </form>
 
 <div class="row-fluid">
-    <div class="span6 well" style="height:200px">
+    <div class="span7 well" style="height:350px">
         <div class="row">
             <div class="span1 offset1">
                 <div><strong>Places</strong></div>
             </div>
-            <div class="span5 offset5">
+            <div class="span9 offset1">
                 <div class="btn-group">
                     <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                         {{current.places.measure.name}}
@@ -139,21 +139,22 @@
                 </div>
             </div>
         </div>
-
         <fs:area
                 bind="places"
                 duration="750"
+                width="800"
+                height="400"
                 interpolate="true"/>
     </div>
 </div>
 
 <div class="row-fluid">
-    <div class="span6 well" style="height:350px">
+    <div class="span7 well" style="height:350px">
         <div class="row">
             <div class="span1 offset1">
                 <div><strong>Customers</strong></div>
             </div>
-            <div class="span2 offset8">
+            <div class="span9 offset1">
                 <div class="btn-group">
                     <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                         {{current.customers.measure.name}}
@@ -175,12 +176,12 @@
 </div>
 
 <div class="row-fluid">
-    <div class="span6 well" style="height:200px">
+    <div class="span7 well" style="height:350px">
         <div class="row">
             <div class="span1 offset1">
                 <div><strong>Messages</strong></div>
             </div>
-            <div class="span7 offset3">
+            <div class="span9 offset1">
                 <div class="btn-group">
                     <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                         {{current.messages.measure.name}}
@@ -226,6 +227,8 @@
         <fs:area
                 bind="results.facets.Times"
                 duration="750"
+                width="800"
+                height="400"
                 interpolate="true"/>
     </div>
 </div>
