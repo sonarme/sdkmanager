@@ -71,7 +71,7 @@ class AggregationService extends DB {
                     case (AggregationType.total, PlacesChartType.dwelltime) => ("avg", "sum(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) / 1000")
                     case (AggregationType.unique, PlacesChartType.dwelltime) => ("avg", "sum(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) / 1000")
                 }
-                val sql = s"select grouper, $aggregator(perVisitor) from (select $grouper as grouper, $charter as perVisitor from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.name=? group by ge.deviceId, grouper) as perVisitors group by grouper order by grouper desc limit 25"
+                val sql = s"select grouper, $aggregator(perVisitor) from (select $grouper as grouper, $charter as perVisitor from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.id=? group by ge.deviceId, grouper) as perVisitors group by grouper order by grouper desc limit 25"
 
                 Q.query[(String, String), AggregationResult](sql).list(appId, geofenceListId)
 
