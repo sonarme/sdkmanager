@@ -30,21 +30,10 @@ angular.module('dashboard.controllers', [])
             ]
         }
 
-        GeofenceList.get({appId: $scope.appId}, function (data) {
-            if(data && data.list) {
-                var list = data.list;
-                for (var i = 0; i < list.length; ++i) {
-                    $scope.filters.where.push(
-                        {name: list[i].name, id: list[i].id}
-                    )
-                }
-            }
-        })
-
         $scope.placeFilters = {
             measures: [
-                {name: 'Dwell time', id: 'dwelltime'},
-                {name: 'Visits', id: 'visits'}
+                {name: 'Visits', id: 'visits'},
+                {name: 'Dwell time', id: 'dwelltime'}
             ],
             aggregates: [
                 {name: 'Unique', id: 'unique'},
@@ -100,6 +89,12 @@ angular.module('dashboard.controllers', [])
         }
 
         $scope.current = {
+            filters: {
+                what: {},
+                who: {},
+                where: $scope.filters.where[0],
+                when: $scope.filters.when[0]
+            },
             places: {
                 measure: $scope.placeFilters.measures[0],
                 aggregate: $scope.placeFilters.aggregates[0],
@@ -116,36 +111,6 @@ angular.module('dashboard.controllers', [])
                 time: $scope.messageFilters.times[0]
             }
         }
-
-        var placeDwellTime = {
-            total: 454,
-            entries: [
-                {"time": 0, "count": 1922},
-                {"time": 1, "count": 32949},
-                {"time": 2, "count": 21630},
-                {"time": 3, "count": 36841},
-                {"time": 4, "count": 33508},
-                {"time": 5, "count": 56504},
-                {"time": 6, "count": 24394},
-                {"time": 7, "count": 30258},
-                {"time": 8, "count": 14029},
-                {"time": 9, "count": 13620},
-                {"time": 10, "count": 25175},
-                {"time": 11, "count": 3119},
-                {"time": 12, "count": 19300},
-                {"time": 13, "count": 22578},
-                {"time": 14, "count": 31905},
-                {"time": 15, "count": 14207},
-                {"time": 16, "count": 14270},
-                {"time": 17, "count": 50658},
-                {"time": 18, "count": 17874},
-                {"time": 19, "count": 21285},
-                {"time": 20, "count": 35873},
-                {"time": 21, "count": 3483},
-                {"time": 22, "count": 46587},
-                {"time": 23, "count": 67019}
-            ]
-        };
 
         var resultsA = {
             facets: {
@@ -197,25 +162,47 @@ angular.module('dashboard.controllers', [])
             }
         };
 
-        $scope.changeFilter = function (aType, attribute, filter) {
+        $scope.changeFilter = function (fType, filter) {
+            $scope.current.filters[fType] = filter
+            getAnalytics('places')
+        }
+
+        $scope.changeAnalyticsFilter = function (aType, attribute, filter) {
             $scope.current[aType][attribute] = filter;
+            getAnalytics(aType);
+        }
+
+        $scope.results = resultsA;
+
+        function getAnalytics(aType) {
             Analytics.get({aType: aType,
-                type: $scope.current[aType].measure ? $scope.current[aType].measure.id : "",
-                agg: $scope.current[aType].aggregate ? $scope.current[aType].aggregate.id : "",
-                group: $scope.current[aType].time ? $scope.current[aType].time.id : "",
-                geofenceListId: $scope.geofenceListId,
-                appId: $scope.appId},
-                function (data) {
+                    type: $scope.current[aType].measure.id,
+                    agg: $scope.current[aType].aggregate.id,
+                    group: $scope.current[aType].time.id,
+                    geofenceListId: $scope.current.filters.where.id,
+                    appId: $scope.appId}, function (data) {
                     $scope[aType] = data;
                 },
                 function (err) {
                     alert("error");
-                }
-            )
+                })
         }
 
-        $scope.results = resultsA;
-        $scope.places = placeDwellTime;
+        function init() {
+            GeofenceList.get({appId: $scope.appId}, function (data) {
+                if (data && data.list) {
+                    var list = data.list;
+                    for (var i = 0; i < list.length; ++i) {
+                        $scope.filters.where.push(
+                            {name: list[i].name, id: list[i].id}
+                        )
+                    }
+                }
+            })
+            getAnalytics('places')
+        }
+        init()
+
     }])
     .controller('CampaignsCtrl', ['$scope', 'Campaign', function ($scope, Campaign) {
         Campaign.query(null, function (data) {

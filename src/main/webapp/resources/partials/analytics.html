@@ -51,11 +51,11 @@
                     <div class="controls">
                         <div class="btn-group">
                             <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                                {{filters.where[0].name}}
+                                {{current.filters.where.name}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="where in filters.where"><a>{{where.name}}</a>
+                                <li ng-repeat="where in filters.where"><a ng-click="changeFilter('where', where)">{{where.name}}</a>
                                 </li>
                             </ul>
                         </div>
@@ -96,8 +96,7 @@
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="measure in placeFilters.measures"><a
-                        ng-click="changeFilter('places', 'measure', measure)">{{measure.name}}</a>
+                <li ng-repeat="measure in placeFilters.measures"><a ng-click="changeAnalyticsFilter('places', 'measure', measure)">{{measure.name}}</a>
                 </li>
             </ul>
         </div>
@@ -107,8 +106,7 @@
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="aggregate in placeFilters.aggregates"><a
-                        ng-click="changeFilter('places', 'aggregate', aggregate)">{{aggregate.name}}</a></li>
+                <li ng-repeat="aggregate in placeFilters.aggregates"><a ng-click="changeAnalyticsFilter('places', 'aggregate', aggregate)">{{aggregate.name}}</a></li>
             </ul>
         </div>
         <!--
@@ -118,7 +116,7 @@
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="display in placeFilters.displays"><a ng-click="changeFilter('places', 'display', display)">{{display.name}}</a></li>
+                <li ng-repeat="display in placeFilters.displays"><a ng-click="changeAnalyticsFilter('places', 'display', display)">{{display.name}}</a></li>
             </ul>
         </div>
         -->
@@ -128,7 +126,7 @@
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="time in placeFilters.times"><a ng-click="changeFilter('places', 'time', time)">{{time.name}}</a>
+                <li ng-repeat="time in placeFilters.times"><a ng-click="changeAnalyticsFilter('places', 'time', time)">{{time.name}}</a>
                 </li>
             </ul>
         </div>
@@ -143,13 +141,12 @@
     <div><strong>250 Customers</strong></div>
     <div class="span6" style="height:350px">
         <div class="btn-group">
-            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 {{current.customers.measure.name}}
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="measure in customerFilters.measures"><a
-                        ng-click="changeFilter('customers', 'measure', measure)">{{measure.name}}</a></li>
+                <li ng-repeat="measure in customerFilters.measures"><a ng-click="changeAnalyticsFilter('customers', 'measure', measure)">{{measure.name}}</a></li>
             </ul>
         </div>
         <fs:donut
@@ -163,42 +160,39 @@
     <div><strong>1500 Messages</strong></div>
     <div class="span6" style="height:200px">
         <div class="btn-group">
-            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 {{current.messages.measure.name}}
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="measure in messageFilters.measures"><a
-                        ng-click="changeFilter('messages', 'measure', measure)">{{measure.name}}</a>
+                <li ng-repeat="measure in messageFilters.measures"><a ng-click="changeAnalyticsFilter('messages', 'measure', measure)">{{measure.name}}</a>
             </ul>
         </div>
         <div class="btn-group">
-            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 {{current.messages.aggregate.name}}
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="aggregate in messageFilters.aggregates"><a
-                        ng-click="changeFilter('messages', 'aggregate', aggregate)">{{aggregate.name}}</a>
+                <li ng-repeat="aggregate in messageFilters.aggregates"><a ng-click="changeAnalyticsFilter('messages', 'aggregate', aggregate)">{{aggregate.name}}</a>
             </ul>
         </div>
         <div class="btn-group">
-            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 {{current.messages.display.name}}
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="display in messageFilters.displays"><a
-                        ng-click="changeFilter('messages', 'display', display)">{{display.name}}</a>
+                <li ng-repeat="display in messageFilters.displays"><a ng-click="changeAnalyticsFilter('messages', 'display', display)">{{display.name}}</a>
             </ul>
         </div>
         <div class="btn-group">
-            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 {{current.messages.time.name}}
                 <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-                <li ng-repeat="time in messageFilters.times"><a ng-click="changeFilter('messages', 'time', time)">{{time.name}}</a>
+                <li ng-repeat="time in messageFilters.times"><a ng-click="changeAnalyticsFilter('messages', 'time', time)">{{time.name}}</a>
             </ul>
         </div>
         <fs:area
