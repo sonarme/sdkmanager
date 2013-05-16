@@ -6,6 +6,7 @@ import me.sonar.sdkmanager.web.api.{PlacesChartType, TimeGrouping, AggregationTy
 import org.scala_tools.time.Imports._
 import scala.slick.session.Database
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import java.util.Date
 
 @Service
 class AggregationService extends DB {
@@ -22,7 +23,7 @@ class AggregationService extends DB {
     case class SegmentationResult(term: String, count: Long)
 
     implicit val getAggregationResult = GetResult(r => AggregationResult(r.nextLong(), r.nextLong()))
-    implicit val getSegmentationResult = GetResult(r => SegmentationResult(r.nextString(), r.nextLong()))
+    implicit val getSegmentationResult = GetResult(r => SegmentationResult(r.nextString().replace('_', ' '), r.nextLong()))
 
     def aggregateCustomers(appId: String, geofenceListId: Long, attribute: String) = db withSession {
         implicit session: Session =>
@@ -32,7 +33,7 @@ class AggregationService extends DB {
 
     }
 
-    def aggregateVisits(chartType: PlacesChartType, appId: String, geofenceListId: Long, agg: AggregationType, group: TimeGrouping) =
+    def aggregateVisits(chartType: PlacesChartType, appId: String, geofenceListId: Long, agg: AggregationType, group: TimeGrouping, since: Long) =
         db withSession {
             implicit session: Session =>
             // TODO: hacky
@@ -51,9 +52,9 @@ class AggregationService extends DB {
                     case (AggregationType.total, PlacesChartType.dwelltime) => ("avg", "sum(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) / 1000")
                     case (AggregationType.unique, PlacesChartType.dwelltime) => ("avg", "sum(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) / 1000")
                 }
-                val sql = s"select grouper, $aggregator(perVisitor) from (select $grouper as grouper, $charter as perVisitor from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and (gfl.id=? or 0=?) group by ge.deviceId, grouper) as perVisitors group by grouper order by grouper desc limit 25"
+                val sql = s"select grouper, $aggregator(perVisitor) from (select $grouper as grouper, $charter as perVisitor from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and (gfl.id=? or 0=?) and ge.entering > ? group by ge.deviceId, grouper) as perVisitors group by grouper order by grouper desc limit 25"
 
-                Q.query[(String, Long, Long), AggregationResult](sql).list(appId, geofenceListId, geofenceListId)
+                Q.query[(String, Long, Long, java.sql.Date), AggregationResult](sql).list(appId, geofenceListId, geofenceListId, new java.sql.Date(since))
 
 
         }

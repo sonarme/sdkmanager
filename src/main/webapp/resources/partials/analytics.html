@@ -75,7 +75,7 @@
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="when in filters.when"><a>{{when.name}}</a>
+                                <li ng-repeat="when in filters.when"><a ng-click="changeFilter('when', when)">{{when.name}}</a>
                                 </li>
                             </ul>
                         </div>
@@ -171,7 +171,7 @@
         <fs:donut
                 outer-radius="200"
                 duration="750"
-                bind="results.facets.Product"/>
+                bind="customers"/>
     </div>
 </div>
 

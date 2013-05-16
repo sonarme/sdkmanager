@@ -16,15 +16,15 @@ angular.module('dashboard.controllers', [])
                 {name: 'Like BigMac Prompt', id: 'like_bigmac_prompt'},
                 {name: 'Redeemed Coupon', id: 'redeemed_coupon'}
             ],
-            where : [
+            where: [
                 {name: 'All Places', id: 'all_places'}
             ],
-            when : [
-                {name: 'Past 96 Hours', id: 'past_96_hours'},
-                {name: 'Past 30 Days', id: 'past_30_days'},
-                {name: 'Past 24 Weeks', id: 'past_24_weeks'},
-                {name: 'Past 12 Months', id: 'past_12_months'},
-                {name: 'Pick a Date Range...', id: 'pick_a_date_range'}
+            when: [
+                {name: 'Past 96 Hours', id: 345600000},
+                {name: 'Past 30 Days', id: 2592000000},
+                {name: 'Past 24 Weeks', id: 14515200000},
+                {name: 'Past 12 Months', id: 31536000000}/*,
+                 {name: 'Pick a Date Range...', id: 'pick_a_date_range'}*/
             ]
         }
 
@@ -38,13 +38,13 @@ angular.module('dashboard.controllers', [])
                 {name: 'Total', id: 'total'},
                 {name: 'Average', id: 'average'}
             ], /*
-            displays: [
-                {name: 'Pie', id: 'pie'},
-                {name: 'Line', id: 'line'},
-                {name: 'Map', id: 'map'}
-            ],*/
+             displays: [
+             {name: 'Pie', id: 'pie'},
+             {name: 'Line', id: 'line'},
+             {name: 'Map', id: 'map'}
+             ],*/
             times: [
-                {name: 'Time of Day', id:'timeOfDay'},
+                {name: 'Time of Day', id: 'timeOfDay'},
                 {name: 'Hour', id: 'hour'},
                 {name: 'Day', id: 'day'},
                 {name: 'Week', id: 'week'},
@@ -55,10 +55,10 @@ angular.module('dashboard.controllers', [])
             measures: [
                 {name: 'Gender', id: 'gender'},
                 {name: 'Age', id: 'age'},
-                {name: 'HHI', id: 'hhi'},
+                {name: 'Income', id: 'income'},
                 {name: 'Education Level', id: 'education'},
-                {name: 'Relationship Status', id: 'relationship'},
-                {name: 'Interests', id: 'interests'}
+                {name: 'Ethnicity', id: 'ethnicity'},
+                {name: 'Household', id: 'household'}
             ]
         }
 
@@ -78,7 +78,7 @@ angular.module('dashboard.controllers', [])
                 {name: 'Map', id: 'map'}
             ],
             times: [
-                {name: 'Time of Day', id:'timeOfDay'},
+                {name: 'Time of Day', id: 'timeOfDay'},
                 {name: 'Hour', id: 'hour'},
                 {name: 'Day', id: 'day'},
                 {name: 'Week', id: 'week'},
@@ -174,10 +174,11 @@ angular.module('dashboard.controllers', [])
 
         function getAnalytics(aType) {
             Analytics.get({aType: aType,
-                    type: $scope.current[aType].measure ? $scope.current[aType].measure.id: "",
+                    type: $scope.current[aType].measure ? $scope.current[aType].measure.id : "",
                     agg: $scope.current[aType].aggregate ? $scope.current[aType].aggregate.id : "",
                     group: $scope.current[aType].time ? $scope.current[aType].time.id : "",
                     geofenceListId: $scope.current.filters.where.id,
+                    since: (new Date(2013, 2, 11, 0, 0, 0, 0).getTime() - $scope.current.filters.when.id),
                     appId: $scope.appId}, function (data) {
                     $scope[aType] = data;
                 },
@@ -199,6 +200,7 @@ angular.module('dashboard.controllers', [])
             })
             getAnalytics('places')
         }
+
         init()
 
     }])

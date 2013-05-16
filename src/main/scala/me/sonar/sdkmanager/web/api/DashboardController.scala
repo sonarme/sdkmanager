@@ -59,11 +59,12 @@ class DashboardController extends Logging with DB {
                     @RequestParam("agg") agg: AggregationType,
                     @RequestParam("group") group: TimeGrouping,
                     @RequestParam("geofenceListId") geofenceListId: String,
-                    @RequestParam("appId") appId: String) = db.withTransaction {
+                    @RequestParam("appId") appId: String,
+                    @RequestParam("since") since: Long) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
             val geofenceListIdLong = if (geofenceListId == "all_places") 0L else geofenceListId.toLong
-            val data = aggregationService.aggregateVisits(`type`, appId, geofenceListIdLong, agg, group)
+            val data = aggregationService.aggregateVisits(`type`, appId, geofenceListIdLong, agg, group, since)
             Map("entries" -> data)
     }
 
@@ -71,7 +72,8 @@ class DashboardController extends Logging with DB {
     @ResponseBody
     def customers(@RequestParam("appId") appId: String,
                   @RequestParam("geofenceListId") geofenceListId: String,
-                  @RequestParam("type") attribute: String) = db.withTransaction {
+                  @RequestParam("type") attribute: String,
+                  @RequestParam("since") since: Long) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.
             val geofenceListIdLong = if (geofenceListId == "all_places") 0L else geofenceListId.toLong
