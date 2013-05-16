@@ -58,7 +58,7 @@ class DashboardController extends Logging with DB {
     def placesChart(@RequestParam("type") `type`: PlacesChartType,
                     @RequestParam("agg") agg: AggregationType,
                     @RequestParam("group") group: TimeGrouping,
-                    @RequestParam("geofenceListId") geofenceListId: String,
+                    @RequestParam("geofenceListId") geofenceListId: Long,
                     @RequestParam("appId") appId: String) = db.withTransaction {
         implicit session: Session =>
         // TODO: security etc.

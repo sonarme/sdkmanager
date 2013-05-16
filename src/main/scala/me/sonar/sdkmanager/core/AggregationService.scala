@@ -32,7 +32,7 @@ class AggregationService extends DB {
 
     /*geofenceEventDao.aggregate(appIdFilter(appId), visitors, visitorsPerHourOfDay).results("geofenceId", "hourOfDay", "visitorsPerHourOfDay")*/
 
-    def aggregateDwellTime(appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping): Map[String, CountStats] =
+    def aggregateDwellTime(appId: String, geofenceListId: Long, agg: AggregationType, group: TimeGrouping): Map[String, CountStats] =
         db withSession {
             implicit session: Session =>
                 val filteredEventsWithDwellTime = (for {
@@ -52,7 +52,7 @@ class AggregationService extends DB {
 
     implicit val getSupplierResult = GetResult(r => AggregationResult(r.nextLong(), r.nextLong()))
 
-    def aggregateVisits(chartType: PlacesChartType, appId: String, geofenceListId: String, agg: AggregationType, group: TimeGrouping) =
+    def aggregateVisits(chartType: PlacesChartType, appId: String, geofenceListId: Long, agg: AggregationType, group: TimeGrouping) =
         db withSession {
             implicit session: Session =>
             // TODO: hacky
@@ -73,12 +73,12 @@ class AggregationService extends DB {
                 }
                 val sql = s"select grouper, $aggregator(perVisitor) from (select $grouper as grouper, $charter as perVisitor from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join GeofenceEvents ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.id=? group by ge.deviceId, grouper) as perVisitors group by grouper order by grouper desc limit 25"
 
-                Q.query[(String, String), AggregationResult](sql).list(appId, geofenceListId)
+                Q.query[(String, Long), AggregationResult](sql).list(appId, geofenceListId)
 
 
         }
 
-    def aggregateVisitsPerVisitor(appId: String, geofenceListId: String): Map[String, CountStats] = db withSession {
+    def aggregateVisitsPerVisitor(appId: String, geofenceListId: Long): Map[String, CountStats] = db withSession {
         implicit session: Session =>
             val filteredEventsPerVisitor = (for {
                 ge <- GeofenceEvents if ge.appId === appId
