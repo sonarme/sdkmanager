@@ -8,16 +8,14 @@ angular.module('dashboard.controllers', [])
         $scope.appId = "test"
 
         $scope.filters = {
-            what: {
-                actionTypes: [
-                    {name: 'Targeted by', id: 'targeted_by'},
-                    {name: 'Received message', id: 'received_message'}
-                ],
-                campaigns: [
-                    {name: 'Like BigMac Prompt', id: 'like_bigmac_prompt'},
-                    {name: 'Redeemed Coupon', id: 'redeemed_coupon'}
-                ]
-            },
+            actionTypes: [
+                {name: 'Targeted by', id: 'targeted_by'},
+                {name: 'Received message', id: 'received_message'}
+            ],
+            campaigns: [
+                {name: 'Like BigMac Prompt', id: 'like_bigmac_prompt'},
+                {name: 'Redeemed Coupon', id: 'redeemed_coupon'}
+            ],
             where : [
                 {name: 'All Places', id: 'all_places'}
             ],
@@ -176,9 +174,9 @@ angular.module('dashboard.controllers', [])
 
         function getAnalytics(aType) {
             Analytics.get({aType: aType,
-                    type: $scope.current[aType].measure.id,
-                    agg: $scope.current[aType].aggregate.id,
-                    group: $scope.current[aType].time.id,
+                    type: $scope.current[aType].measure ? $scope.current[aType].measure.id: "",
+                    agg: $scope.current[aType].aggregate ? $scope.current[aType].aggregate.id : "",
+                    group: $scope.current[aType].time ? $scope.current[aType].time.id : "",
                     geofenceListId: $scope.current.filters.where.id,
                     appId: $scope.appId}, function (data) {
                     $scope[aType] = data;
