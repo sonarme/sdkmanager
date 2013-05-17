@@ -872,7 +872,7 @@ angular.module('dangle')
                 // root svg element
                 var svg = d3.select(element[0])
                     .append('svg')
-                    .attr('preserveAspectRatio', 'xMinYMin meet')
+                    .attr('preserveAspectRatio', 'xMidYMid meet')
                     .attr('viewBox', '0 0 ' + w + ' ' + h);
 
                 // group for arcs
@@ -1065,7 +1065,7 @@ angular.module('dangle')
 
                             nameLabels.enter().append("text")
                                 .attr("class", "units")
-                                .attr('font-size', 16)
+                                .attr('font-size', 20)
                                 .attr('stroke', 'none')
                                 .attr('fill', '#000')
                                 .attr("transform", function (d) {
