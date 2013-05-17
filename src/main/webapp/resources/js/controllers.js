@@ -141,6 +141,20 @@ angular.module('dashboard.controllers', [])
             }
         };
 
+        $scope.topPlaces = [
+            {name: "Wendy's", address:"335 5th", locality: "New York", total:321, unique:123, dwell:500},
+            {name: "McDonald's", address:"12 6th", locality: "New York", total:222, unique:111, dwell:604},
+            {name: "Walmart", address:"223 Madison", locality: "New York", total:543, unique:42, dwell:900},
+            {name: "Target", address:"100 Park", locality: "New York", total:120, unique:99, dwell:340}
+        ]
+
+        $scope.topPeople = [
+            {name: "John Smith", visits:37, dwell:220},
+            {name: "Jane Doe", visits:89, dwell:110},
+            {name: "Justin Credible", visits:40, dwell:954},
+            {name: "Seymour Butts", visits:9, dwell:613}
+        ]
+
         $scope.changeFilter = function (fType, filter) {
             $scope.current.filters[fType] = filter
             refreshAnalytics()

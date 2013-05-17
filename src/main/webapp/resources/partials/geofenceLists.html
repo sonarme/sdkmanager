@@ -6,13 +6,13 @@
                 <th>Name</th>
                 <th>Places</th>
             </tr>
+            </thead>
             <tbody>
             <tr ng-repeat="geofenceList in geofenceLists.list">
                 <td>{{geofenceList.name}}</td>
                 <td>{{geofenceList.places.length}}</td>
             </tr>
             </tbody>
-            </thead>
         </table>
     </div>
 </div>
