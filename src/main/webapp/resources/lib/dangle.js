@@ -964,6 +964,8 @@ angular.module('dangle')
                             // run the transition
                             path.transition().duration(duration).attrTween('d', arcTween);
 
+                            path.exit().remove();
+
                             // update the label ticks
                             var ticks = labels.selectAll('line').data(pieData);
                             ticks.enter().append('line')
