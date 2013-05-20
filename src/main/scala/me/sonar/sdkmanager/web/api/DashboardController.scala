@@ -4,10 +4,13 @@ import org.springframework.stereotype.Controller
 import grizzled.slf4j.Logging
 import org.springframework.web.bind.annotation._
 import scala.Array
+import collection.JavaConversions._
 import me.sonar.sdkmanager.model.api.{GeofenceListRequest, GeofenceListsResponse}
 import me.sonar.sdkmanager.model.db.{DB, GeofenceList}
 import org.springframework.beans.factory.annotation.Autowired
-import me.sonar.sdkmanager.core.AggregationService
+import me.sonar.sdkmanager.core.{FactualService, AggregationService}
+import me.sonar.sdkmanager.core.ScalaGoodies._
+import com.factual.driver.ReadResponse
 
 @Controller
 class DashboardController extends Logging with DB {
@@ -16,6 +19,8 @@ class DashboardController extends Logging with DB {
 
     @Autowired
     var aggregationService: AggregationService = _
+    @Autowired
+    var factualService: FactualService = _
 
     @RequestMapping(value = Array("/geofencelists/{appId}"), method = Array(RequestMethod.GET))
     @ResponseBody
@@ -80,4 +85,29 @@ class DashboardController extends Logging with DB {
             Map("terms" -> aggregationService.aggregateCustomers(appId, geofenceListIdLong, attribute))
     }
 
+    @RequestMapping(value = Array("analytics/topPlaces"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topPlaces(@RequestParam("appId") appId: String,
+                  @RequestParam("geofenceListId") geofenceListId: String,
+                  @RequestParam(required = false, defaultValue = "5", value = "limit") limit: Int) = db.withTransaction {
+        implicit session: Session =>
+        //TODO: security etc.
+            val geofenceListIdLong = if (geofenceListId == "all_places") 1L else geofenceListId.toLong
+            val data = aggregationService.topPlaces(appId, geofenceListIdLong).take(limit)
+            val factualIds = data.map(d => d.term.substring(d.term.indexOf("factual-") + 8))
+
+            val factualPlaces = factualService.getFactualPlacesById(factualIds).asInstanceOf[Map[String,ReadResponse]]
+
+            val res = data.map {
+                d =>
+                    val temp = factualPlaces.get(d.term.substring(d.term.indexOf("factual-") + 8)).orNull
+                    val f = ?(temp.getData.head)
+                    TopPlaces(d.term, ?(f.get("name").toString), ?(f.get("address").toString), ?(f.get("locality").toString), d.count, 10, 10)
+            }
+            Map("list" -> res)
+
+    }
+
 }
+
+case class TopPlaces(id: String, name: String, address: String, locality: String, total: Long, unique: Int, dwell: Int)

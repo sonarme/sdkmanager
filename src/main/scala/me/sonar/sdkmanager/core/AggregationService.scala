@@ -59,5 +59,11 @@ class AggregationService extends DB {
 
         }
 
+    def topPlaces(appId: String, geofenceListId: Long) =
+        db withSession {
+            implicit session: Session =>
+                val sql = s"select ge.geofenceId, count(geofenceId) as cnt from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join (select appId, geofenceId from GeofenceEvents) ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.id=? group by ge.geofenceId order by cnt desc"
 
+                Q.query[(String, Long), SegmentationResult](sql).list(appId, geofenceListId)
+        }
 }

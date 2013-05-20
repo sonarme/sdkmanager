@@ -141,12 +141,9 @@ angular.module('dashboard.controllers', [])
             }
         };
 
-        $scope.topPlaces = [
-            {name: "Wendy's", address:"335 5th", locality: "New York", total:321, unique:123, dwell:500},
-            {name: "McDonald's", address:"12 6th", locality: "New York", total:222, unique:111, dwell:604},
-            {name: "Walmart", address:"223 Madison", locality: "New York", total:543, unique:42, dwell:900},
-            {name: "Target", address:"100 Park", locality: "New York", total:120, unique:99, dwell:340}
-        ]
+
+        $scope.topPlaces = {}
+
 
         $scope.topPeople = [
             {name: "John Smith", visits:37, dwell:220},
@@ -169,9 +166,9 @@ angular.module('dashboard.controllers', [])
 
         function getAnalytics(aType) {
             Analytics.get({aType: aType,
-                    type: $scope.current[aType].measure ? $scope.current[aType].measure.id : "",
-                    agg: $scope.current[aType].aggregate ? $scope.current[aType].aggregate.id : "",
-                    group: $scope.current[aType].time ? $scope.current[aType].time.id : "",
+                    type: $scope.current[aType] ? ($scope.current[aType].measure ? $scope.current[aType].measure.id : "") : "",
+                    agg: $scope.current[aType] ? ($scope.current[aType].aggregate ? $scope.current[aType].aggregate.id : "") : "",
+                    group: $scope.current[aType] ? ($scope.current[aType].time ? $scope.current[aType].time.id : "") : "",
                     geofenceListId: $scope.current.filters.where.id,
                     since: (new Date(2013, 2, 11, 0, 0, 0, 0).getTime() - $scope.current.filters.when.id),
                     appId: $scope.appId}, function (data) {
@@ -198,6 +195,7 @@ angular.module('dashboard.controllers', [])
         function refreshAnalytics() {
             getAnalytics('places')
             getAnalytics('customers')
+            getAnalytics('topPlaces')
         }
 
         init()

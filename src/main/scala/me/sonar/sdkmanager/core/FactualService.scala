@@ -136,6 +136,26 @@ class FactualService extends Segmentation with DB {
         placesResponse
     }
 
+    def getFactualPlacesById(factualIds: Seq[String]) = {
+        val idGroups = factualIds.grouped(3).toList
+        idGroups.map{ idGroup =>
+            val multiReq = new MultiRequest
+            idGroup.foreach {
+                factualId =>
+                    val query = new FactualQuery
+                    query.field("factual_id").isEqual(factualId)
+                    multiReq.addQuery(factualId, "places", query)
+            }
+            factual.sendRequests(multiReq).getData
+        }.flatten.toMap
+    }
+
+    def getFactualPlaceById(factualId: String) = {
+        val query = new FactualQuery
+        query.field("factual_id").isEqual(factualId)
+        factual.fetch("places", query)
+    }
+
     private def buildQuery(factualRequest: FactualPlaceRequest) = {
         val query = new FactualQuery()
                 .includeRowCount()
