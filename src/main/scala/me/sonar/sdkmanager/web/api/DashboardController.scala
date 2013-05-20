@@ -102,7 +102,7 @@ class DashboardController extends Logging with DB {
                 d =>
                     val temp = factualPlaces.get(d.term.substring(d.term.indexOf("factual-") + 8)).orNull
                     val f = ?(temp.getData.head)
-                    TopPlaces(d.term, ?(f.get("name").toString), ?(f.get("address").toString), ?(f.get("locality").toString), d.count, 10, 10)
+                    TopPlaces(d.term, ?(f.get("name").toString), ?(f.get("address").toString), ?(f.get("locality").toString), d.count, d.unique.toInt, d.dwell.toInt)
             }
             Map("list" -> res)
 
