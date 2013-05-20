@@ -16,7 +16,7 @@ class AggregationServiceTest extends SpringComponentTest {
     }
 
     "the service" should "return top places" in {
-        val data = service.topPlaces("test", 1).take(4)
+        val data = service.topPlaces("test", 1, 1361394777000L).take(4)
         println(data)
 
         val factualIds = data.map(d => d.term.substring(d.term.indexOf("factual-") + 8))

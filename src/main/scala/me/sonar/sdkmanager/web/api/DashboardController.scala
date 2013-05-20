@@ -89,11 +89,12 @@ class DashboardController extends Logging with DB {
     @ResponseBody
     def topPlaces(@RequestParam("appId") appId: String,
                   @RequestParam("geofenceListId") geofenceListId: String,
+                  @RequestParam("since") since: Long,
                   @RequestParam(required = false, defaultValue = "5", value = "limit") limit: Int) = db.withTransaction {
         implicit session: Session =>
         //TODO: security etc.
             val geofenceListIdLong = if (geofenceListId == "all_places") 1L else geofenceListId.toLong
-            val data = aggregationService.topPlaces(appId, geofenceListIdLong).take(limit)
+            val data = aggregationService.topPlaces(appId, geofenceListIdLong, since).take(limit)
             val factualIds = data.map(d => d.term.substring(d.term.indexOf("factual-") + 8))
 
             val factualPlaces = factualService.getFactualPlacesById(factualIds).asInstanceOf[Map[String,ReadResponse]]

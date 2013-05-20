@@ -62,11 +62,11 @@ class AggregationService extends DB {
 
         }
 
-    def topPlaces(appId: String, geofenceListId: Long) =
+    def topPlaces(appId: String, geofenceListId: Long, since: Long) =
         db withSession {
             implicit session: Session =>
-                val sql = s"select ge.geofenceId, count(geofenceId) as cnt, count(distinct ge.deviceId) as uniq, (avg(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) / 1000) as dwell from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join (select appId, deviceId, geofenceId, entering, exiting from GeofenceEvents) ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.id=? group by ge.geofenceId order by cnt desc"
+                val sql = s"select ge.geofenceId, count(geofenceId) as cnt, count(distinct ge.deviceId) as uniq, (avg(UNIX_TIMESTAMP(ge.exiting) - UNIX_TIMESTAMP(ge.entering)) / 1000) as dwell from GeofenceLists gfl join GeofenceListsToPlaces gfl2place on gfl.id=gfl2place.geofenceListId join (select appId, deviceId, geofenceId, entering, exiting from GeofenceEvents) ge on gfl2place.placeId=ge.geofenceId and gfl.appId=ge.appId where gfl.appId=? and gfl.id=? and ge.entering > ? group by ge.geofenceId order by cnt desc"
 
-                Q.query[(String, Long), TopItemsResult](sql).list(appId, geofenceListId)
+                Q.query[(String, Long, java.sql.Date), TopItemsResult](sql).list(appId, geofenceListId, new java.sql.Date(since))
         }
 }
