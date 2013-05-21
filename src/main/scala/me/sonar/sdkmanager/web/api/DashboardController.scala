@@ -93,7 +93,7 @@ class DashboardController extends Logging with DB {
                   @RequestParam(required = false, defaultValue = "5", value = "limit") limit: Int) = db.withTransaction {
         implicit session: Session =>
         //TODO: security etc.
-            val geofenceListIdLong = if (geofenceListId == "all_places") 1L else geofenceListId.toLong
+            val geofenceListIdLong = if (geofenceListId == "all_places") 0L else geofenceListId.toLong
             val data = aggregationService.topPlaces(appId, geofenceListIdLong, since).take(limit)
             val factualIds = data.map(d => d.term.substring(d.term.indexOf("factual-") + 8))
 
@@ -109,6 +109,23 @@ class DashboardController extends Logging with DB {
 
     }
 
+    @RequestMapping(value = Array("analytics/topPeople"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def topPeople(@RequestParam("appId") appId: String,
+                  @RequestParam("geofenceListId") geofenceListId: String,
+                  @RequestParam("since") since: Long,
+                  @RequestParam(required = false, defaultValue = "5", value = "limit") limit: Int) = db.withTransaction {
+        implicit session: Session =>
+            val geofenceListIdLong = if (geofenceListId == "all_places") 0L else geofenceListId.toLong
+            val data = aggregationService.topPeople(appId, geofenceListIdLong, since).take(limit)
+
+            val res = data.map {
+                d =>
+                    TopPeople(d.term, d.visits, d.dwell.toInt)
+            }
+            Map("list" -> res)
+    }
 }
 
 case class TopPlaces(id: String, name: String, address: String, locality: String, total: Long, unique: Int, dwell: Int)
+case class TopPeople(name: String, total: Long, dwell: Int)

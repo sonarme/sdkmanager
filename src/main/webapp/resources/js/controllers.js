@@ -145,12 +145,7 @@ angular.module('dashboard.controllers', [])
         $scope.topPlaces = {}
 
 
-        $scope.topPeople = [
-            {name: "John Smith", visits:37, dwell:220},
-            {name: "Jane Doe", visits:89, dwell:110},
-            {name: "Justin Credible", visits:40, dwell:954},
-            {name: "Seymour Butts", visits:9, dwell:613}
-        ]
+        $scope.topPeople = {}
 
         $scope.changeFilter = function (fType, filter) {
             $scope.current.filters[fType] = filter
@@ -196,6 +191,7 @@ angular.module('dashboard.controllers', [])
             getAnalytics('places')
             getAnalytics('customers')
             getAnalytics('topPlaces')
+            getAnalytics('topPeople')
         }
 
         init()
